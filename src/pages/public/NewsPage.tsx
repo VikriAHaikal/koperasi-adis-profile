@@ -67,7 +67,8 @@ export const NewsPage: React.FC<NewsPageProps> = ({ news }) => {
     <div style={{ animation: 'fadeIn 0.6s ease-out', paddingTop: '75px', backgroundColor: 'var(--light-bg)', minHeight: '100vh', paddingBottom: '80px' }}>
       <SEO 
         title="Berita & Agenda Kegiatan" 
-        description="Ikuti perkembangan terbaru, pengumuman resmi, agenda kegiatan, promo Adis Mart, dan artikel edukasi dari Koperasi Karyawan PT Adis Dimension Footwear." 
+        description="Ikuti perkembangan terbaru, pengumuman resmi, agenda kegiatan, promo Adis Mart, dan artikel edukasi dari Koperasi Karyawan PT Adis Dimension Footwear (KOPKAR ADIS)."
+        canonicalPath="/berita"
       />
 
       {/* Page Header */}

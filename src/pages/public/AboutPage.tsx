@@ -88,7 +88,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ profile }) => {
     <div style={{ animation: 'fadeIn 0.6s ease-out', paddingTop: '70px' }}>
       <SEO 
         title="Tentang Kami" 
-        description="Mengenal profil, sejarah berdiri, struktur kepengurusan, visi dan misi Koperasi Karyawan PT Adis Dimension Footwear." 
+        description="Mengenal profil, sejarah berdiri, struktur kepengurusan, visi dan misi Koperasi Karyawan PT Adis Dimension Footwear (KOPKAR ADIS) di Balaraja, Tangerang, Banten." 
+        canonicalPath="/tentang-kami"
       />
       {/* Page Header */}
       <section className="page-header">

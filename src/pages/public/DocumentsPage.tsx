@@ -31,7 +31,8 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ documents }) => {
     <div style={{ animation: 'fadeIn 0.6s ease-out', paddingTop: '70px' }}>
       <SEO 
         title="Laporan RAT & Dokumen" 
-        description="Transparansi Keuangan dan Dokumen Regulasi AD-ART Koperasi Konsumen Karyawan PT Adis Dimension Footwear." 
+        description="Akses transparansi keuangan, Laporan Pertanggungjawaban RAT tahunan, dan dokumen regulasi AD-ART Koperasi Konsumen Karyawan PT Adis Dimension Footwear (KOPKAR ADIS)."
+        canonicalPath="/laporan-rat"
       />
       {/* Page Header */}
       <section className="page-header">

@@ -90,7 +90,8 @@ export const ContactPage: React.FC<ContactPageProps> = ({ contactInfo }) => {
     <div style={{ animation: 'fadeIn 0.6s ease-out', paddingTop: '70px' }}>
       <SEO 
         title="Hubungi Kami" 
-        description="Hubungi sekretariat KOPKAR ADIS, kirimkan kritik & saran, atau kunjungi kantor koperasi kami di Balaraja." 
+        description="Hubungi sekretariat KOPKAR ADIS, kirimkan kritik & saran anggota, atau kunjungi kantor koperasi di Balaraja, Tangerang. Kami siap membantu Anda."
+        canonicalPath="/kontak"
       />
       {/* Page Header */}
       <section className="page-header">

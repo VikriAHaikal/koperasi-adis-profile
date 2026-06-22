@@ -102,7 +102,8 @@ export const Home: React.FC<HomeProps> = ({ slides, profile, units, news, contac
     <div style={{ animation: 'fadeIn 0.6s ease-out' }}>
       <SEO 
         title="Beranda" 
-        description="Website Resmi Koperasi Karyawan PT Adis Dimension Footwear (KOPKAR ADIS). Menyediakan layanan Adis Mart, Simpan Pinjam Syariah, dan informasi kesejahteraan anggota." 
+        description="Website Resmi Koperasi Karyawan PT Adis Dimension Footwear (KOPKAR ADIS) — Adis Mart, Simpan Pinjam Syariah bebas riba, Jasa Logistik, Laporan RAT, dan Pendaftaran Anggota Online di Balaraja, Tangerang."
+        canonicalPath="/"
       />
       {/* Hero Slider */}
       <Hero slides={slides} onCtaClick={() => navigate('/kontak')} whatsappNumber={contactInfo?.whatsapp} />

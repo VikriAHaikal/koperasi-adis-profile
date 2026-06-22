@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Block admin area from search engines
+Disallow: /admin
+Disallow: /login
+
+# Sitemap location
+Sitemap: https://koperasi-adis-profile.vercel.app/sitemap.xml

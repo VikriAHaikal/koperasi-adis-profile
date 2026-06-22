@@ -21,7 +21,8 @@ export const BusinessUnitsPage: React.FC<BusinessUnitsPageProps> = ({ units }) =
     <div style={{ animation: 'fadeIn 0.6s ease-out', paddingTop: '70px' }}>
       <SEO 
         title="Unit Usaha" 
-        description="Layanan unit usaha Koperasi Adis: Adis Mart, Unit Simpan Pinjam Syariah, dan Jasa Distribusi Logistik. Pelajari detail setiap unit usaha kami." 
+        description="Layanan unit usaha Koperasi Karyawan PT Adis: Adis Mart minimarket karyawan, Unit Simpan Pinjam Syariah bebas riba, dan Jasa Distribusi Logistik. Pelajari detail setiap unit usaha kami." 
+        canonicalPath="/unit-usaha"
       />
       {/* Page Header */}
       <section className="page-header">
