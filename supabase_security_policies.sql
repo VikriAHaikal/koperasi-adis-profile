@@ -77,3 +77,47 @@ DROP POLICY IF EXISTS "Allow public insert access for registrations" ON registra
 DROP POLICY IF EXISTS "Allow admin manage access for registrations" ON registrations;
 CREATE POLICY "Allow public insert access for registrations" ON registrations FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow admin manage access for registrations" ON registrations FOR ALL TO authenticated USING (true);
+
+
+-- 4. KEBIJAKAN PENGAMANAN UNTUK SUPABASE STORAGE BUCKETS
+-- (Membuat bucket jika belum ada, dan mengatur izin baca/tulis berkas)
+
+-- Membuat bucket 'images' dan 'documents' jika belum ada
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('images', 'images', true), ('documents', 'documents', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Kebijakan untuk bucket 'images'
+DROP POLICY IF EXISTS "Allow public read access for images" ON storage.objects;
+CREATE POLICY "Allow public read access for images" ON storage.objects
+  FOR SELECT USING (bucket_id = 'images');
+
+DROP POLICY IF EXISTS "Allow authenticated users to upload images" ON storage.objects;
+CREATE POLICY "Allow authenticated users to upload images" ON storage.objects
+  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'images');
+
+DROP POLICY IF EXISTS "Allow authenticated users to update images" ON storage.objects;
+CREATE POLICY "Allow authenticated users to update images" ON storage.objects
+  FOR UPDATE TO authenticated USING (bucket_id = 'images');
+
+DROP POLICY IF EXISTS "Allow authenticated users to delete images" ON storage.objects;
+CREATE POLICY "Allow authenticated users to delete images" ON storage.objects
+  FOR DELETE TO authenticated USING (bucket_id = 'images');
+
+
+-- Kebijakan untuk bucket 'documents'
+DROP POLICY IF EXISTS "Allow public read access for documents" ON storage.objects;
+CREATE POLICY "Allow public read access for documents" ON storage.objects
+  FOR SELECT USING (bucket_id = 'documents');
+
+DROP POLICY IF EXISTS "Allow authenticated users to upload documents" ON storage.objects;
+CREATE POLICY "Allow authenticated users to upload documents" ON storage.objects
+  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'documents');
+
+DROP POLICY IF EXISTS "Allow authenticated users to update documents" ON storage.objects;
+CREATE POLICY "Allow authenticated users to update documents" ON storage.objects
+  FOR UPDATE TO authenticated USING (bucket_id = 'documents');
+
+DROP POLICY IF EXISTS "Allow authenticated users to delete documents" ON storage.objects;
+CREATE POLICY "Allow authenticated users to delete documents" ON storage.objects
+  FOR DELETE TO authenticated USING (bucket_id = 'documents');
