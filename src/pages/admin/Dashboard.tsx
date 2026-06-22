@@ -24,9 +24,10 @@ interface DashboardProps {
   session: any;
   onLogout: () => void;
   onGoHome: () => void;
+  onDataSaved?: () => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ session, onLogout, onGoHome }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ session, onLogout, onGoHome, onDataSaved }) => {
   const [activeTab, setActiveTab] = useState<'summary' | 'hero' | 'profile' | 'units' | 'news' | 'docs' | 'contact' | 'messages' | 'settings'>('summary');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
@@ -57,6 +58,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ session, onLogout, onGoHom
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, 4000);
+    // Notify parent (App.tsx) to reload public data after any successful save
+    if (type === 'success' && onDataSaved) {
+      onDataSaved();
+    }
   };
 
   // Custom Confirm Dialog State

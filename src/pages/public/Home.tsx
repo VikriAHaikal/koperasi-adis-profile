@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Hero } from '../../components/Hero';
 import { Users, Briefcase, TrendingUp, Award, ArrowRight } from 'lucide-react';
-import type { HeroSlide, ProfileContent, BusinessUnit, NewsArticle } from '../../services/db';
+import type { HeroSlide, ProfileContent, BusinessUnit, NewsArticle, ContactInfo } from '../../services/db';
 import { SEO } from '../../components/SEO';
 
 interface HomeProps {
@@ -10,9 +10,10 @@ interface HomeProps {
   profile: ProfileContent | null;
   units: BusinessUnit[];
   news: NewsArticle[];
+  contactInfo?: ContactInfo | null;
 }
 
-export const Home: React.FC<HomeProps> = ({ slides, profile, units, news }) => {
+export const Home: React.FC<HomeProps> = ({ slides, profile, units, news, contactInfo }) => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
     members: 0,
@@ -104,7 +105,7 @@ export const Home: React.FC<HomeProps> = ({ slides, profile, units, news }) => {
         description="Website Resmi Koperasi Karyawan PT Adis Dimension Footwear (KOPKAR ADIS). Menyediakan layanan Adis Mart, Simpan Pinjam Syariah, dan informasi kesejahteraan anggota." 
       />
       {/* Hero Slider */}
-      <Hero slides={slides} onCtaClick={() => navigate('/kontak')} />
+      <Hero slides={slides} onCtaClick={() => navigate('/kontak')} whatsappNumber={contactInfo?.whatsapp} />
 
       {/* 📊 Statistics Counter Section */}
       <section ref={statsRef} className="section" style={{ backgroundColor: '#ffffff', borderBottom: '1px solid var(--border-light)' }}>

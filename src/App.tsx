@@ -108,7 +108,7 @@ const PublicLayout: React.FC<PublicLayoutProps> = ({ children, onGoToAdmin, cont
       {/* Floating WhatsApp Button */}
       {contactInfo?.whatsapp && (
         <a 
-          href={`https://wa.me/${contactInfo.whatsapp.replace(/\D/g, '')}`} 
+          href={`https://wa.me/${contactInfo.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Halo Admin KOPKAR ADIS 👋, saya ingin bertanya-tanya seputar koperasi dan layanannya. Boleh dibantu?')}`}
           target="_blank" 
           rel="noreferrer" 
           className="wa-float"
@@ -246,7 +246,7 @@ function App() {
         {/* 1. PUBLIC ROUTES (Wrapped in Layout) */}
         <Route path="/" element={
           <PublicLayout onGoToAdmin={handleGoToAdmin} contactInfo={contact}>
-            <Home slides={heroSlides} profile={profile} units={units} news={news} />
+            <Home slides={heroSlides} profile={profile} units={units} news={news} contactInfo={contact} />
           </PublicLayout>
         } />
         
@@ -302,7 +302,8 @@ function App() {
             <Dashboard 
               session={session} 
               onLogout={handleLogout} 
-              onGoHome={() => navigate('/')} 
+              onGoHome={() => navigate('/')}
+              onDataSaved={loadPublicContent}
             />
           ) : (
             <Navigate to="/login" replace />
