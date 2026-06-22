@@ -11,6 +11,7 @@ import { BusinessUnitDetailPage } from './pages/public/BusinessUnitDetailPage';
 import { NewsPage } from './pages/public/NewsPage';
 import { DocumentsPage } from './pages/public/DocumentsPage';
 import { ContactPage } from './pages/public/ContactPage';
+import { NotFoundPage } from './pages/public/NotFoundPage';
 
 // Cookie & Cache Consent Banner
 import { CookieConsent } from './components/CookieConsent';
@@ -310,8 +311,10 @@ function App() {
           )
         } />
 
-        {/* 4. FALLBACK REDIRECT */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* 4. FALLBACK - Custom 404 Page */}
+        <Route path="*" element={
+          <NotFoundPage />
+        } />
       </Routes>
     </React.Suspense>
   );
