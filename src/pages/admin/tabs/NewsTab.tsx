@@ -87,8 +87,19 @@ export const NewsTab: React.FC<NewsTabProps> = ({
     try {
       let updated: NewsArticle[];
       if (isEditing === 'new') {
+        const nextIdNumber = news.reduce((max, item) => {
+          const match = item.id.match(/^news-(\d+)$/);
+          if (match) {
+            const num = parseInt(match[1], 10);
+            if (num < 100000) {
+              return num > max ? num : max;
+            }
+          }
+          return max;
+        }, 0) + 1;
+
         const newArt: NewsArticle = {
-          id: 'news-' + Date.now(),
+          id: `news-${nextIdNumber}`,
           created_at: new Date().toISOString(),
           ...newsForm
         };

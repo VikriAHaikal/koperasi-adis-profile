@@ -392,7 +392,12 @@ const getFilePathFromUrl = (bucketName: string, url: string): string | null => {
   const marker = `/storage/v1/object/public/${bucketName}/`;
   const index = url.indexOf(marker);
   if (index !== -1) {
-    return decodeURIComponent(url.substring(index + marker.length));
+    let path = url.substring(index + marker.length);
+    const qIndex = path.indexOf('?');
+    if (qIndex !== -1) {
+      path = path.substring(0, qIndex);
+    }
+    return decodeURIComponent(path);
   }
   return null;
 };
@@ -544,7 +549,10 @@ export const dbService = {
         { key: 'budaya', value: JSON.stringify(profile.budaya || []) }
       ];
       const { error } = await supabase.from('profile_content').upsert(rows, { onConflict: 'key' });
-      if (error) console.error('Supabase error upserting profile_content:', error);
+      if (error) {
+        console.error('Supabase error upserting profile_content:', error);
+        throw error;
+      }
     }
   },
 
@@ -585,7 +593,10 @@ export const dbService = {
         console.error('Error during business units sync delete:', err);
       }
       const { error } = await supabase.from('business_units').upsert(units);
-      if (error) console.error('Supabase error upserting business_units:', error);
+      if (error) {
+        console.error('Supabase error upserting business_units:', error);
+        throw error;
+      }
     }
   },
 
@@ -626,7 +637,10 @@ export const dbService = {
         console.error('Error during news sync delete:', err);
       }
       const { error } = await supabase.from('news_articles').upsert(news);
-      if (error) console.error('Supabase error upserting news_articles:', error);
+      if (error) {
+        console.error('Supabase error upserting news_articles:', error);
+        throw error;
+      }
     }
   },
 
@@ -667,7 +681,10 @@ export const dbService = {
         console.error('Error during documents sync delete:', err);
       }
       const { error } = await supabase.from('documents').upsert(docs);
-      if (error) console.error('Supabase error upserting documents:', error);
+      if (error) {
+        console.error('Supabase error upserting documents:', error);
+        throw error;
+      }
     }
   },
 
@@ -709,7 +726,10 @@ export const dbService = {
         { key: 'youtube', value: contact.youtube || '' }
       ];
       const { error } = await supabase.from('contact_info').upsert(rows, { onConflict: 'key' });
-      if (error) console.error('Supabase error upserting contact_info:', error);
+      if (error) {
+        console.error('Supabase error upserting contact_info:', error);
+        throw error;
+      }
     }
   },
 
