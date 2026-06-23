@@ -110,8 +110,8 @@ export const ContactPage: React.FC<ContactPageProps> = ({ contactInfo }) => {
         <div className="container">
           <div className="contact-grid">
             {/* Left Column: Details & Google Map */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-              <div className="glass-card" style={{ background: '#f8fafc', border: '1px solid var(--border-light)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+              <div className="glass-card" style={{ background: '#f8fafc', border: '1px solid var(--border-light)', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '20px', color: 'var(--text-dark)' }}>
                   Informasi Kontak
                 </h3>
@@ -121,7 +121,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ contactInfo }) => {
                     <MapPin size={20} color="var(--primary)" style={{ marginTop: '4px', flexShrink: 0 }} />
                     <div>
                       <h5 style={{ fontWeight: 600, fontSize: '0.92rem', margin: '0 0 4px 0' }}>Alamat Kantor Sekretariat</h5>
-                      <p style={{ fontSize: '0.9rem', color: 'var(--text-muted-dark)', margin: 0, lineHeight: 1.5 }}>
+                      <p style={{ fontSize: '0.9rem', color: 'var(--text-muted-dark)', margin: 0, lineHeight: 1.5, wordBreak: 'break-word' }}>
                         {contactInfo.address}
                       </p>
                     </div>
@@ -131,7 +131,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ contactInfo }) => {
                     <Phone size={20} color="var(--primary)" style={{ marginTop: '4px', flexShrink: 0 }} />
                     <div>
                       <h5 style={{ fontWeight: 600, fontSize: '0.92rem', margin: '0 0 4px 0' }}>Nomor Telepon</h5>
-                      <p style={{ fontSize: '0.9rem', color: 'var(--text-muted-dark)', margin: 0 }}>
+                      <p style={{ fontSize: '0.9rem', color: 'var(--text-muted-dark)', margin: 0, wordBreak: 'break-word' }}>
                         {contactInfo.phone}
                       </p>
                     </div>
@@ -141,7 +141,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ contactInfo }) => {
                     <Mail size={20} color="var(--primary)" style={{ marginTop: '4px', flexShrink: 0 }} />
                     <div>
                       <h5 style={{ fontWeight: 600, fontSize: '0.92rem', margin: '0 0 4px 0' }}>Surel / Email Resmi</h5>
-                      <p style={{ fontSize: '0.9rem', color: 'var(--text-muted-dark)', margin: 0 }}>
+                      <p style={{ fontSize: '0.9rem', color: 'var(--text-muted-dark)', margin: 0, wordBreak: 'break-word' }}>
                         {contactInfo.email}
                       </p>
                     </div>
@@ -162,7 +162,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ contactInfo }) => {
                       <InstagramIcon size={20} color="var(--primary)" style={{ marginTop: '4px', flexShrink: 0 }} />
                       <div>
                         <h5 style={{ fontWeight: 600, fontSize: '0.92rem', margin: '0 0 4px 0' }}>Instagram Resmi</h5>
-                        <a href={contactInfo.instagram} target="_blank" rel="noreferrer" style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>
+                        <a href={contactInfo.instagram} target="_blank" rel="noreferrer" style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none', wordBreak: 'break-word' }}>
                           {contactInfo.instagram.replace('https://instagram.com/', '@')}
                         </a>
                       </div>
@@ -174,7 +174,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ contactInfo }) => {
                       <YoutubeIcon size={20} color="var(--primary)" style={{ marginTop: '4px', flexShrink: 0 }} />
                       <div>
                         <h5 style={{ fontWeight: 600, fontSize: '0.92rem', margin: '0 0 4px 0' }}>Saluran YouTube</h5>
-                        <a href={contactInfo.youtube} target="_blank" rel="noreferrer" style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>
+                        <a href={contactInfo.youtube} target="_blank" rel="noreferrer" style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none', wordBreak: 'break-word' }}>
                           Kopkar Adis Channel
                         </a>
                       </div>
@@ -189,7 +189,10 @@ export const ContactPage: React.FC<ContactPageProps> = ({ contactInfo }) => {
                 borderRadius: '16px', 
                 overflow: 'hidden', 
                 boxShadow: 'var(--shadow-md)',
-                border: '1px solid var(--border-light)'
+                border: '1px solid var(--border-light)',
+                width: '100%',
+                maxWidth: '100%',
+                boxSizing: 'border-box'
               }}>
                 <iframe 
                   title="Peta Lokasi Kopkar Adis"
@@ -215,7 +218,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ contactInfo }) => {
             </div>
 
             {/* Right Column: Feedback Form */}
-            <div className="glass-card" style={{ background: '#ffffff', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-sm)' }}>
+            <div className="glass-card" style={{ background: '#ffffff', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-sm)', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '24px' }}>
                 <MessageSquare size={24} color="var(--primary)" />
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-dark)' }}>

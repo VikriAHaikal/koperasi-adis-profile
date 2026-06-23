@@ -55,8 +55,8 @@ export const Contact: React.FC<ContactProps> = ({ contactInfo }) => {
 
         <div className="contact-grid">
           {/* Left Column: Contact details & Map Placeholder */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-            <div className="glass-card" style={{ background: '#ffffff' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+            <div className="glass-card" style={{ background: '#ffffff', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '20px', color: 'var(--text-dark)' }}>
                 Informasi Kontak
               </h3>
@@ -66,7 +66,7 @@ export const Contact: React.FC<ContactProps> = ({ contactInfo }) => {
                   <MapPin size={20} color="var(--primary)" style={{ marginTop: '4px', flexShrink: 0 }} />
                   <div>
                     <h5 style={{ fontWeight: 600, fontSize: '0.92rem', margin: '0 0 4px 0' }}>Alamat Kantor</h5>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted-dark)', margin: 0 }}>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted-dark)', margin: 0, wordBreak: 'break-word' }}>
                       {contactInfo.address}
                     </p>
                   </div>
@@ -76,7 +76,7 @@ export const Contact: React.FC<ContactProps> = ({ contactInfo }) => {
                   <Phone size={20} color="var(--primary)" style={{ marginTop: '4px', flexShrink: 0 }} />
                   <div>
                     <h5 style={{ fontWeight: 600, fontSize: '0.92rem', margin: '0 0 4px 0' }}>Telepon</h5>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted-dark)', margin: 0 }}>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted-dark)', margin: 0, wordBreak: 'break-word' }}>
                       {contactInfo.phone}
                     </p>
                   </div>
@@ -86,7 +86,7 @@ export const Contact: React.FC<ContactProps> = ({ contactInfo }) => {
                   <Mail size={20} color="var(--primary)" style={{ marginTop: '4px', flexShrink: 0 }} />
                   <div>
                     <h5 style={{ fontWeight: 600, fontSize: '0.92rem', margin: '0 0 4px 0' }}>Surel / Email</h5>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted-dark)', margin: 0 }}>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted-dark)', margin: 0, wordBreak: 'break-word' }}>
                       {contactInfo.email}
                     </p>
                   </div>
@@ -110,7 +110,10 @@ export const Contact: React.FC<ContactProps> = ({ contactInfo }) => {
               borderRadius: '16px', 
               overflow: 'hidden', 
               boxShadow: 'var(--shadow-md)',
-              border: '1px solid var(--border-light)'
+              border: '1px solid var(--border-light)',
+              width: '100%',
+              maxWidth: '100%',
+              boxSizing: 'border-box'
             }}>
               <iframe 
                 title="Peta Lokasi Koperasi Kopkar Adis"
@@ -136,7 +139,7 @@ export const Contact: React.FC<ContactProps> = ({ contactInfo }) => {
           </div>
 
           {/* Right Column: Contact form */}
-          <div className="glass-card" style={{ background: '#ffffff' }}>
+          <div className="glass-card" style={{ background: '#ffffff', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '24px' }}>
               <MessageSquare size={24} color="var(--primary)" />
               <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-dark)' }}>
