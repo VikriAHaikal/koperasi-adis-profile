@@ -49,6 +49,7 @@ export interface CultureValue {
 
 export interface ProfileContent {
   sejarah: string;
+  sejarah_image_url?: string;
   visi: string;
   misi: string[];
   stats_members?: string;
@@ -138,6 +139,7 @@ const defaultHeroSlides: HeroSlide[] = [
 
 const defaultProfile: ProfileContent = {
   sejarah: 'Koperasi Konsumen Karyawan PT Adis Dimension Footwear didirikan atas komitmen bersama untuk meningkatkan kesejahteraan finansial dan sosial seluruh karyawan PT Adis. Seiring perkembangan perusahaan sebagai salah satu produsen sepatu olahraga terkemuka di Indonesia, Koperasi kami bertransformasi menjadi mitra tepercaya dengan berbagai unit bisnis mandiri yang dikelola secara profesional.',
+  sejarah_image_url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80',
   visi: 'Menjadi koperasi konsumen karyawan teladan nasional yang mandiri, sehat, amanah, dan menjadi motor penggerak kesejahteraan anggota.',
   misi: [
     'Menyediakan kebutuhan konsumsi harian berkualitas dengan harga terjangkau bagi seluruh anggota.',
@@ -461,6 +463,7 @@ export const dbService = {
       const { data, error } = await supabase.from('profile_content').select('*');
       if (!error && data && data.length > 0) {
         const sejarah = data.find(d => d.key === 'sejarah')?.value || '';
+        const sejarah_image_url = data.find(d => d.key === 'sejarah_image_url')?.value || '';
         const visi = data.find(d => d.key === 'visi')?.value || '';
         const misi = JSON.parse(data.find(d => d.key === 'misi')?.value || '[]');
         const stats_members = data.find(d => d.key === 'stats_members')?.value || '5280';
@@ -478,13 +481,14 @@ export const dbService = {
         const unit_details = unitDetailsRaw ? JSON.parse(unitDetailsRaw) : undefined;
         const budayaRaw = data.find(d => d.key === 'budaya')?.value;
         const budaya = budayaRaw ? JSON.parse(budayaRaw) : undefined;
-        return { sejarah, visi, misi, stats_members, stats_assets, stats_growth, milestones, org_structure, prestasi, partners, unit_details, budaya };
+        return { sejarah, sejarah_image_url, visi, misi, stats_members, stats_assets, stats_growth, milestones, org_structure, prestasi, partners, unit_details, budaya };
       }
       console.error('Supabase error fetching profile_content, using local storage fallback:', error);
     }
     const local = JSON.parse(localStorage.getItem('koperasi_profile') || '{}');
     return {
       sejarah: local.sejarah || defaultProfile.sejarah,
+      sejarah_image_url: local.sejarah_image_url || defaultProfile.sejarah_image_url,
       visi: local.visi || defaultProfile.visi,
       misi: local.misi || defaultProfile.misi,
       stats_members: local.stats_members || defaultProfile.stats_members,
@@ -507,6 +511,9 @@ export const dbService = {
         const newUrls: string[] = [];
         
         const collectUrls = (prof: ProfileContent, list: string[]) => {
+          if (prof.sejarah_image_url) {
+            list.push(prof.sejarah_image_url);
+          }
           if (prof.org_structure) {
             prof.org_structure.forEach(m => m.avatar_url && list.push(m.avatar_url));
           }
@@ -536,6 +543,7 @@ export const dbService = {
 
       const rows = [
         { key: 'sejarah', value: profile.sejarah },
+        { key: 'sejarah_image_url', value: profile.sejarah_image_url || '' },
         { key: 'visi', value: profile.visi },
         { key: 'misi', value: JSON.stringify(profile.misi) },
         { key: 'stats_members', value: profile.stats_members || '5280' },

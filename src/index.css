@@ -1522,5 +1522,29 @@ button, input, textarea, select {
   100% { transform: translate(15px, 10px) scale(1.1); }
 }
 
+/* Responsive Helper Utilities */
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
+.responsive-flex-group {
+  display: flex;
+  gap: 10px;
+}
+@media (max-width: 480px) {
+  .responsive-flex-group {
+    flex-direction: column;
+  }
+  .responsive-flex-group button {
+    width: 100%;
+  }
+}
+
 
 

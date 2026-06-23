@@ -123,7 +123,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ profile }) => {
 
             <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
               <img 
-                src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80" 
+                src={profile.sejarah_image_url || 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80'} 
                 alt="Pengurus Koperasi" 
                 style={{ width: '100%', maxWidth: '480px', height: 'auto', aspectRatio: '4 / 3', objectFit: 'cover', borderRadius: '24px', boxShadow: 'var(--shadow-lg)' }}
               />

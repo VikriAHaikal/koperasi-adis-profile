@@ -28,6 +28,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
   // Form states
   const [sejarahText, setSejarahText] = useState('');
+  const [sejarahImageUrl, setSejarahImageUrl] = useState('');
   const [visiText, setVisiText] = useState('');
   const [misiList, setMisiList] = useState<string[]>([]);
   const [newMisiInput, setNewMisiInput] = useState('');
@@ -62,6 +63,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   useEffect(() => {
     if (profile) {
       setSejarahText(profile.sejarah || '');
+      setSejarahImageUrl(profile.sejarah_image_url || '');
       setVisiText(profile.visi || '');
       setMisiList(profile.misi || []);
       setStatsMembers(profile.stats_members || '5280');
@@ -97,6 +99,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   // UNIFIED AUTO-SAVE HANDLER
   const saveProfileData = async (fields: {
     sejarah?: string;
+    sejarah_image_url?: string;
     visi?: string;
     misi?: string[];
     stats_members?: string;
@@ -114,6 +117,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       const updated: ProfileContent = {
         ...profile,
         sejarah: fields.sejarah !== undefined ? fields.sejarah : sejarahText,
+        sejarah_image_url: fields.sejarah_image_url !== undefined ? fields.sejarah_image_url : sejarahImageUrl,
         visi: fields.visi !== undefined ? fields.visi : visiText,
         misi: fields.misi !== undefined ? fields.misi : misiList,
         stats_members: fields.stats_members !== undefined ? fields.stats_members : statsMembers,
@@ -131,6 +135,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
       // Sync React states
       if (fields.sejarah !== undefined) setSejarahText(fields.sejarah);
+      if (fields.sejarah_image_url !== undefined) setSejarahImageUrl(fields.sejarah_image_url);
       if (fields.visi !== undefined) setVisiText(fields.visi);
       if (fields.misi !== undefined) setMisiList(fields.misi);
       if (fields.stats_members !== undefined) setStatsMembers(fields.stats_members);
@@ -271,6 +276,27 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     }
   };
 
+  const handleSejarahPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setIsUploading(true);
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `sejarah_${Date.now()}.${fileExt}`;
+        const filePath = `profile/${fileName}`;
+        
+        const publicUrl = await dbService.uploadFile('images', filePath, file);
+        setSejarahImageUrl(publicUrl);
+        showToast('Foto sejarah berhasil diunggah. Klik Simpan untuk menyimpan perubahan.', 'success');
+      } catch (err: any) {
+        console.error(err);
+        showToast(err.message || 'Gagal mengunggah foto sejarah.', 'error');
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
   return (
     <div className="admin-card" style={{ maxWidth: '1000px', padding: '25px', borderRadius: '16px', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-light)', backgroundColor: 'white' }}>
       {role === 'editor' && (
@@ -302,8 +328,38 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           </span>
         </div>
         
-        {/* Sub-Tab Navigation */}
-        <div style={{ 
+        {/* Sub-Tab Navigation - Mobile Dropdown */}
+        <div className="mobile-only" style={{ marginBottom: '15px', width: '100%' }}>
+          <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem', marginBottom: '8px' }}>Pilih Kategori Kelola:</label>
+          <select
+            value={profileSubTab}
+            onChange={(e) => handleSubTabChange(e.target.value as any)}
+            className="form-input"
+            style={{ 
+              borderRadius: '8px', 
+              fontWeight: 700, 
+              fontSize: '0.9rem',
+              color: 'var(--primary)',
+              borderColor: 'rgba(15, 98, 254, 0.3)',
+              backgroundColor: '#f8fafc',
+              height: '45px',
+              padding: '8px 12px',
+              width: '100%',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="info">📖 Visi & Misi</option>
+            <option value="stats">📈 Statistik Koperasi</option>
+            <option value="org">👥 Struktur Organisasi</option>
+            <option value="awards">🏆 Prestasi</option>
+            <option value="milestones">⏱️ Garis Waktu</option>
+            <option value="partners">🤝 Mitra Kerja Sama</option>
+            <option value="budaya">🛡️ Budaya Kerja</option>
+          </select>
+        </div>
+
+        {/* Sub-Tab Navigation - Desktop */}
+        <div className="desktop-only" style={{ 
           display: 'flex', 
           gap: '6px', 
           backgroundColor: '#f1f5f9',
@@ -360,14 +416,40 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       {profileSubTab === 'info' && (
         <div className="animate-fade-in" style={{ animationDuration: '0.3s' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.92rem' }}>Sejarah Singkat Koperasi</label>
-              <textarea 
-                value={sejarahText} 
-                onChange={e => setSejarahText(e.target.value)} 
-                className="form-input" 
-                style={{ minHeight: '140px', resize: 'vertical', lineHeight: 1.6 }} 
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.92rem' }}>Sejarah Singkat Koperasi</label>
+                <textarea 
+                  value={sejarahText} 
+                  onChange={e => setSejarahText(e.target.value)} 
+                  className="form-input" 
+                  style={{ minHeight: '180px', resize: 'vertical', lineHeight: 1.6 }} 
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.92rem' }}>Foto Sejarah Utama</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', backgroundColor: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
+                  <img 
+                    src={sejarahImageUrl || 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80'} 
+                    alt="Pratinjau Foto Sejarah" 
+                    style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e2e8f0' }} 
+                  />
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <input type="file" accept="image/*" onChange={handleSejarahPhotoChange} style={{ display: 'none' }} id="sejarah-photo-upload" />
+                    <label 
+                      htmlFor="sejarah-photo-upload" className="btn btn-secondary" 
+                      style={{ 
+                        cursor: 'pointer', padding: '8px 14px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        borderColor: 'var(--primary)', color: 'var(--primary)', background: 'white', marginBottom: 0, height: '36px'
+                      }}
+                    >
+                      <span>{isUploading ? 'Memproses...' : 'Pilih Foto'}</span>
+                    </label>
+                    <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>Maksimal 1MB</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
@@ -383,14 +465,14 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             <div>
               <label className="form-label" style={{ fontWeight: 700, fontSize: '0.92rem' }}>Poin-poin Misi Koperasi</label>
               
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
+              <div className="responsive-flex-group" style={{ marginBottom: '12px' }}>
                 <input 
                   type="text" 
                   placeholder="Tuliskan misi baru..." 
                   value={newMisiInput} 
                   onChange={e => setNewMisiInput(e.target.value)} 
                   className="form-input" 
-                  style={{ borderRadius: '8px', fontSize: '0.88rem' }}
+                  style={{ borderRadius: '8px', fontSize: '0.88rem', flex: 1 }}
                 />
                 <button 
                   type="button" 
@@ -423,7 +505,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                       }} 
                       onBlur={() => saveProfileData({ misi: misiList })}
                       className="form-input" 
-                      style={{ padding: '6px 12px', fontSize: '0.88rem', border: '1px solid #cbd5e1' }} 
+                      style={{ padding: '6px 12px', fontSize: '0.88rem', border: '1px solid #cbd5e1', flex: 1 }} 
                     />
                     <button 
                       type="button" 
@@ -450,7 +532,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-start' }}>
               <button 
                 type="button" 
-                onClick={() => saveProfileData({ sejarah: sejarahText, visi: visiText })} 
+                onClick={() => saveProfileData({ sejarah: sejarahText, visi: visiText, sejarah_image_url: sejarahImageUrl })} 
                 disabled={isSaving}
                 className="btn btn-primary" 
                 style={{ padding: '10px 24px', fontSize: '0.88rem', borderRadius: '8px' }}
@@ -548,7 +630,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             </button>
           </div>
 
-          <div style={{ overflowX: 'auto', maxHeight: '380px', overflowY: 'auto', border: '1px solid var(--border-light)', borderRadius: '12px' }} className="admin-table-wrapper">
+          {/* Desktop Table View */}
+          <div style={{ overflowX: 'auto', maxHeight: '380px', overflowY: 'auto', border: '1px solid var(--border-light)', borderRadius: '12px' }} className="admin-table-wrapper desktop-only">
             <table className="admin-table" style={{ marginTop: 0 }}>
               <thead>
                 <tr>
@@ -638,6 +721,100 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card List View */}
+          <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {orgList.map((member, idx) => (
+              <div key={idx} style={{ 
+                backgroundColor: '#f8fafc', 
+                border: '1px solid var(--border-light)', 
+                borderRadius: '12px', 
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                boxShadow: 'var(--shadow-sm)'
+              }}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <img 
+                    src={member.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'} 
+                    alt={member.name} 
+                    style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #cbd5e1' }} 
+                  />
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <strong style={{ color: 'var(--text-dark)', fontSize: '0.95rem' }}>{member.name}</strong>
+                    <span style={{ 
+                      fontSize: '0.75rem', 
+                      padding: '2px 8px', 
+                      borderRadius: '20px', 
+                      fontWeight: 700, 
+                      backgroundColor: 'rgba(15, 98, 254, 0.08)', 
+                      color: 'var(--primary)',
+                      width: 'fit-content',
+                      marginTop: '4px'
+                    }}>
+                      {member.role}
+                    </span>
+                  </div>
+                </div>
+                
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '10px', marginTop: '4px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted-dark)', fontWeight: 600 }}>Urutan:</span>
+                    <button 
+                      type="button" onClick={() => moveOrgMember(idx, 'up')} disabled={idx === 0 || isSaving} className="btn btn-secondary"
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', border: '1px solid #cbd5e1', background: 'white', borderRadius: '6px', height: '32px' }}
+                    >
+                      ▲ Naik
+                    </button>
+                    <button 
+                      type="button" onClick={() => moveOrgMember(idx, 'down')} disabled={idx === orgList.length - 1 || isSaving} className="btn btn-secondary"
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', border: '1px solid #cbd5e1', background: 'white', borderRadius: '6px', height: '32px' }}
+                    >
+                      ▼ Turun
+                    </button>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      type="button" 
+                      onClick={() => { setEditingOrgIdx(idx); setNewOrgMember(member); setIsOrgModalOpen(true); }} 
+                      className="btn btn-secondary" 
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', color: 'var(--primary)', borderColor: 'rgba(15,98,254,0.3)', borderRadius: '6px', height: '32px', background: 'white', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <Edit2 size={12} />
+                      <span>Edit</span>
+                    </button>
+                    {role === 'admin' && (
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          triggerConfirm(
+                            'Hapus Anggota Struktur?',
+                            `Apakah Anda yakin ingin menghapus "${member.name}" dari struktur organisasi?`,
+                            () => {
+                              const updated = orgList.filter((_, i) => i !== idx);
+                              saveProfileData({ org_structure: updated });
+                            }
+                          );
+                        }} 
+                        className="btn btn-danger" 
+                        style={{ padding: '6px 12px', fontSize: '0.75rem', background: 'rgba(239, 68, 68, 0.08)', color: '#ef4444', border: 'none', borderRadius: '6px', height: '32px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <Trash2 size={12} />
+                        <span>Hapus</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {orgList.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted-dark)', fontStyle: 'italic', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
+                Belum ada data anggota pengurus.
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -664,7 +841,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             </button>
           </div>
 
-          <div style={{ overflowX: 'auto', maxHeight: '380px', overflowY: 'auto', border: '1px solid var(--border-light)', borderRadius: '12px' }} className="admin-table-wrapper">
+          {/* Desktop Table View */}
+          <div style={{ overflowX: 'auto', maxHeight: '380px', overflowY: 'auto', border: '1px solid var(--border-light)', borderRadius: '12px' }} className="admin-table-wrapper desktop-only">
             <table className="admin-table" style={{ marginTop: 0 }}>
               <thead>
                 <tr>
@@ -750,6 +928,105 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card List View */}
+          <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {prestasiList.map((item, idx) => (
+              <div key={idx} style={{ 
+                backgroundColor: '#f8fafc', 
+                border: '1px solid var(--border-light)', 
+                borderRadius: '12px', 
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                boxShadow: 'var(--shadow-sm)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted-dark)' }}>Tahun {item.year}</span>
+                    <strong style={{ color: 'var(--text-dark)', fontSize: '0.95rem' }}>{item.title}</strong>
+                    <span style={{ fontSize: '0.8rem', color: '#475569' }}>Pemberi: {item.awarder}</span>
+                  </div>
+                  <span style={{ 
+                    fontSize: '0.65rem', padding: '3px 8px', borderRadius: '50px', fontWeight: 800, textTransform: 'uppercase',
+                    backgroundColor: item.level === 'Nasional' ? 'rgba(239, 68, 68, 0.1)' : item.level === 'Provinsi' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(16, 185, 129, 0.1)', 
+                    color: item.level === 'Nasional' ? '#ef4444' : item.level === 'Provinsi' ? '#3b82f6' : '#10b981',
+                    whiteSpace: 'nowrap'
+                  }}>{item.level}</span>
+                </div>
+
+                {item.image_url && (
+                  <img 
+                    src={item.image_url} 
+                    alt={item.title} 
+                    style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                  />
+                )}
+
+                {item.description && (
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted-dark)', margin: 0, lineHeight: '1.4' }}>
+                    {item.description}
+                  </p>
+                )}
+                
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '10px', marginTop: '4px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted-dark)', fontWeight: 600 }}>Urutan:</span>
+                    <button 
+                      type="button" onClick={() => movePrestasi(idx, 'up')} disabled={idx === 0 || isSaving} className="btn btn-secondary"
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', border: '1px solid #cbd5e1', background: 'white', borderRadius: '6px', height: '32px' }}
+                    >
+                      ▲ Naik
+                    </button>
+                    <button 
+                      type="button" onClick={() => movePrestasi(idx, 'down')} disabled={idx === prestasiList.length - 1 || isSaving} className="btn btn-secondary"
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', border: '1px solid #cbd5e1', background: 'white', borderRadius: '6px', height: '32px' }}
+                    >
+                      ▼ Turun
+                    </button>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      type="button" 
+                      onClick={() => { setEditingPrestasiIdx(idx); setNewPrestasi(item); setIsPrestasiModalOpen(true); }} 
+                      className="btn btn-secondary" 
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', color: 'var(--primary)', borderColor: 'rgba(15,98,254,0.3)', borderRadius: '6px', height: '32px', background: 'white', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <Edit2 size={12} />
+                      <span>Edit</span>
+                    </button>
+                    {role === 'admin' && (
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          triggerConfirm(
+                            'Hapus Prestasi?',
+                            `Apakah Anda yakin ingin menghapus prestasi "${item.title}"?`,
+                            () => {
+                              const updated = prestasiList.filter((_, i) => i !== idx);
+                              saveProfileData({ prestasi: updated });
+                            }
+                          );
+                        }} 
+                        className="btn btn-danger" 
+                        style={{ padding: '6px 12px', fontSize: '0.75rem', background: 'rgba(239, 68, 68, 0.08)', color: '#ef4444', border: 'none', borderRadius: '6px', height: '32px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <Trash2 size={12} />
+                        <span>Hapus</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {prestasiList.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted-dark)', fontStyle: 'italic', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
+                Belum ada data prestasi.
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -776,7 +1053,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             </button>
           </div>
 
-          <div style={{ overflowX: 'auto', maxHeight: '380px', overflowY: 'auto', border: '1px solid var(--border-light)', borderRadius: '12px' }} className="admin-table-wrapper">
+          {/* Desktop Table View */}
+          <div style={{ overflowX: 'auto', maxHeight: '380px', overflowY: 'auto', border: '1px solid var(--border-light)', borderRadius: '12px' }} className="admin-table-wrapper desktop-only">
             <table className="admin-table" style={{ marginTop: 0 }}>
               <thead>
                 <tr>
@@ -854,6 +1132,86 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card List View */}
+          <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {milestonesList.map((item, idx) => (
+              <div key={idx} style={{ 
+                backgroundColor: '#f8fafc', 
+                border: '1px solid var(--border-light)', 
+                borderRadius: '12px', 
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                boxShadow: 'var(--shadow-sm)'
+              }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted-dark)' }}>Tahun {item.year}</span>
+                  <strong style={{ color: 'var(--text-dark)', fontSize: '0.95rem' }}>{item.title}</strong>
+                </div>
+
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted-dark)', margin: 0, lineHeight: '1.4' }}>
+                  {item.description}
+                </p>
+                
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '10px', marginTop: '4px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted-dark)', fontWeight: 600 }}>Urutan:</span>
+                    <button 
+                      type="button" onClick={() => moveMilestone(idx, 'up')} disabled={idx === 0 || isSaving} className="btn btn-secondary"
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', border: '1px solid #cbd5e1', background: 'white', borderRadius: '6px', height: '32px' }}
+                    >
+                      ▲ Naik
+                    </button>
+                    <button 
+                      type="button" onClick={() => moveMilestone(idx, 'down')} disabled={idx === milestonesList.length - 1 || isSaving} className="btn btn-secondary"
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', border: '1px solid #cbd5e1', background: 'white', borderRadius: '6px', height: '32px' }}
+                    >
+                      ▼ Turun
+                    </button>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      type="button" 
+                      onClick={() => { setEditingMilestoneIdx(idx); setNewMilestone(item); setIsMilestoneModalOpen(true); }} 
+                      className="btn btn-secondary" 
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', color: 'var(--primary)', borderColor: 'rgba(15,98,254,0.3)', borderRadius: '6px', height: '32px', background: 'white', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <Edit2 size={12} />
+                      <span>Edit</span>
+                    </button>
+                    {role === 'admin' && (
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          triggerConfirm(
+                            'Hapus Milestone?',
+                            `Apakah Anda yakin ingin menghapus milestone tahun "${item.year}"?`,
+                            () => {
+                              const updated = milestonesList.filter((_, i) => i !== idx);
+                              saveProfileData({ milestones: updated });
+                            }
+                          );
+                        }} 
+                        className="btn btn-danger" 
+                        style={{ padding: '6px 12px', fontSize: '0.75rem', background: 'rgba(239, 68, 68, 0.08)', color: '#ef4444', border: 'none', borderRadius: '6px', height: '32px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <Trash2 size={12} />
+                        <span>Hapus</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {milestonesList.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted-dark)', fontStyle: 'italic', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
+                Belum ada data milestone.
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -880,7 +1238,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             </button>
           </div>
 
-          <div style={{ overflowX: 'auto', maxHeight: '380px', overflowY: 'auto', border: '1px solid var(--border-light)', borderRadius: '12px' }} className="admin-table-wrapper">
+          {/* Desktop Table View */}
+          <div style={{ overflowX: 'auto', maxHeight: '380px', overflowY: 'auto', border: '1px solid var(--border-light)', borderRadius: '12px' }} className="admin-table-wrapper desktop-only">
             <table className="admin-table" style={{ marginTop: 0 }}>
               <thead>
                 <tr>
@@ -968,6 +1327,103 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card List View */}
+          <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {partnersList.map((partner, idx) => (
+              <div key={idx} style={{ 
+                backgroundColor: '#f8fafc', 
+                border: '1px solid var(--border-light)', 
+                borderRadius: '12px', 
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                boxShadow: 'var(--shadow-sm)'
+              }}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <div style={{ 
+                    width: '80px', 
+                    height: '48px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    borderRadius: '6px', 
+                    backgroundColor: 'white', 
+                    padding: '4px', 
+                    border: '1px solid #e2e8f0',
+                    flexShrink: 0
+                  }}>
+                    {partner.logo_url ? (
+                      <img 
+                        src={partner.logo_url} 
+                        alt={partner.name} 
+                        style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} 
+                      />
+                    ) : (
+                      <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontStyle: 'italic' }}>No Logo</span>
+                    )}
+                  </div>
+                  <strong style={{ color: 'var(--text-dark)', fontSize: '0.95rem' }}>{partner.name}</strong>
+                </div>
+                
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '10px', marginTop: '4px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted-dark)', fontWeight: 600 }}>Urutan:</span>
+                    <button 
+                      type="button" onClick={() => movePartner(idx, 'up')} disabled={idx === 0 || isSaving} className="btn btn-secondary"
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', border: '1px solid #cbd5e1', background: 'white', borderRadius: '6px', height: '32px' }}
+                    >
+                      ▲ Naik
+                    </button>
+                    <button 
+                      type="button" onClick={() => movePartner(idx, 'down')} disabled={idx === partnersList.length - 1 || isSaving} className="btn btn-secondary"
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', border: '1px solid #cbd5e1', background: 'white', borderRadius: '6px', height: '32px' }}
+                    >
+                      ▼ Turun
+                    </button>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      type="button" 
+                      onClick={() => { setEditingPartnerIdx(idx); setNewPartner(partner); setIsPartnerModalOpen(true); }} 
+                      className="btn btn-secondary" 
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', color: 'var(--primary)', borderColor: 'rgba(15,98,254,0.3)', borderRadius: '6px', height: '32px', background: 'white', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <Edit2 size={12} />
+                      <span>Edit</span>
+                    </button>
+                    {role === 'admin' && (
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          triggerConfirm(
+                            'Hapus Mitra Kerja Sama?',
+                            `Apakah Anda yakin ingin menghapus "${partner.name}" dari mitra kerja sama?`,
+                            () => {
+                              const updated = partnersList.filter((_, i) => i !== idx);
+                              saveProfileData({ partners: updated });
+                            }
+                          );
+                        }} 
+                        className="btn btn-danger" 
+                        style={{ padding: '6px 12px', fontSize: '0.75rem', background: 'rgba(239, 68, 68, 0.08)', color: '#ef4444', border: 'none', borderRadius: '6px', height: '32px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <Trash2 size={12} />
+                        <span>Hapus</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {partnersList.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted-dark)', fontStyle: 'italic', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
+                Belum ada data mitra kerja sama.
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -994,7 +1450,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             </button>
           </div>
 
-          <div style={{ overflowX: 'auto', maxHeight: '380px', overflowY: 'auto', border: '1px solid var(--border-light)', borderRadius: '12px' }} className="admin-table-wrapper">
+          {/* Desktop Table View */}
+          <div style={{ overflowX: 'auto', maxHeight: '380px', overflowY: 'auto', border: '1px solid var(--border-light)', borderRadius: '12px' }} className="admin-table-wrapper desktop-only">
             <table className="admin-table" style={{ marginTop: 0 }}>
               <thead>
                 <tr>
@@ -1088,6 +1545,100 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card List View */}
+          <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {budayaList.map((item, idx) => (
+              <div key={idx} style={{ 
+                backgroundColor: '#f8fafc', 
+                border: '1px solid var(--border-light)', 
+                borderRadius: '12px', 
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                boxShadow: 'var(--shadow-sm)'
+              }}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <div style={{ 
+                    display: 'inline-flex', 
+                    padding: '8px', 
+                    borderRadius: '8px', 
+                    backgroundColor: 'rgba(15, 98, 254, 0.08)', 
+                    color: 'var(--primary)',
+                    flexShrink: 0
+                  }}>
+                    {item.icon === 'ShieldCheck' && <ShieldCheck size={20} />}
+                    {item.icon === 'Users' && <Users size={20} />}
+                    {item.icon === 'HeartHandshake' && <HeartHandshake size={20} />}
+                    {item.icon === 'Trophy' && <Trophy size={20} />}
+                    {item.icon === 'Compass' && <Compass size={20} />}
+                    {item.icon === 'Eye' && <Eye size={20} />}
+                  </div>
+                  <strong style={{ color: 'var(--text-dark)', fontSize: '0.95rem' }}>{item.title}</strong>
+                </div>
+
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted-dark)', margin: 0, lineHeight: '1.4' }}>
+                  {item.description}
+                </p>
+                
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '10px', marginTop: '4px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted-dark)', fontWeight: 600 }}>Urutan:</span>
+                    <button 
+                      type="button" onClick={() => moveBudaya(idx, 'up')} disabled={idx === 0 || isSaving} className="btn btn-secondary"
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', border: '1px solid #cbd5e1', background: 'white', borderRadius: '6px', height: '32px' }}
+                    >
+                      ▲ Naik
+                    </button>
+                    <button 
+                      type="button" onClick={() => moveBudaya(idx, 'down')} disabled={idx === budayaList.length - 1 || isSaving} className="btn btn-secondary"
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', border: '1px solid #cbd5e1', background: 'white', borderRadius: '6px', height: '32px' }}
+                    >
+                      ▼ Turun
+                    </button>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      type="button" 
+                      onClick={() => { setEditingBudayaIdx(idx); setNewBudaya(item); setIsBudayaModalOpen(true); }} 
+                      className="btn btn-secondary" 
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', color: 'var(--primary)', borderColor: 'rgba(15,98,254,0.3)', borderRadius: '6px', height: '32px', background: 'white', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <Edit2 size={12} />
+                      <span>Edit</span>
+                    </button>
+                    {role === 'admin' && (
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          triggerConfirm(
+                            'Hapus Budaya Kerja?',
+                            `Apakah Anda yakin ingin menghapus budaya kerja "${item.title}"?`,
+                            () => {
+                              const updated = budayaList.filter((_, i) => i !== idx);
+                              saveProfileData({ budaya: updated });
+                            }
+                          );
+                        }} 
+                        className="btn btn-danger" 
+                        style={{ padding: '6px 12px', fontSize: '0.75rem', background: 'rgba(239, 68, 68, 0.08)', color: '#ef4444', border: 'none', borderRadius: '6px', height: '32px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <Trash2 size={12} />
+                        <span>Hapus</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {budayaList.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted-dark)', fontStyle: 'italic', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
+                Belum ada data budaya kerja.
+              </div>
+            )}
           </div>
         </div>
       )}
