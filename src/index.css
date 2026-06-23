@@ -1546,5 +1546,24 @@ button, input, textarea, select {
   }
 }
 
+/* Contact Grid Layout & Glass Card Mobile Padding */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 30px;
+}
+@media (max-width: 992px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+@media (max-width: 480px) {
+  .glass-card {
+    padding: 16px !important;
+  }
+}
+
+
 
 

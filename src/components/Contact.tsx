@@ -53,10 +53,10 @@ export const Contact: React.FC<ContactProps> = ({ contactInfo }) => {
           <h2 className="section-title">Kontak & Lokasi</h2>
         </div>
 
-        <div className="grid-2">
+        <div className="contact-grid">
           {/* Left Column: Contact details & Map Placeholder */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-            <div className="glass-card" style={{ background: '#ffffff', padding: '30px' }}>
+            <div className="glass-card" style={{ background: '#ffffff' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '20px', color: 'var(--text-dark)' }}>
                 Informasi Kontak
               </h3>
@@ -136,7 +136,7 @@ export const Contact: React.FC<ContactProps> = ({ contactInfo }) => {
           </div>
 
           {/* Right Column: Contact form */}
-          <div className="glass-card" style={{ background: '#ffffff', padding: '30px' }}>
+          <div className="glass-card" style={{ background: '#ffffff' }}>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '24px' }}>
               <MessageSquare size={24} color="var(--primary)" />
               <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-dark)' }}>

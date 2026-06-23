@@ -108,10 +108,10 @@ export const ContactPage: React.FC<ContactPageProps> = ({ contactInfo }) => {
       {/* Main Grid */}
       <section className="section" style={{ backgroundColor: '#ffffff' }}>
         <div className="container">
-          <div className="grid-2">
+          <div className="contact-grid">
             {/* Left Column: Details & Google Map */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-              <div className="glass-card" style={{ background: '#f8fafc', padding: '30px', border: '1px solid var(--border-light)' }}>
+              <div className="glass-card" style={{ background: '#f8fafc', border: '1px solid var(--border-light)' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '20px', color: 'var(--text-dark)' }}>
                   Informasi Kontak
                 </h3>
@@ -215,7 +215,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ contactInfo }) => {
             </div>
 
             {/* Right Column: Feedback Form */}
-            <div className="glass-card" style={{ background: '#ffffff', padding: '30px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-sm)' }}>
+            <div className="glass-card" style={{ background: '#ffffff', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-sm)' }}>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '24px' }}>
                 <MessageSquare size={24} color="var(--primary)" />
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-dark)' }}>

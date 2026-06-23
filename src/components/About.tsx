@@ -109,7 +109,7 @@ export const About: React.FC<AboutProps> = ({ profile }) => {
             <div 
               className="about-image"
               style={{
-                backgroundImage: `url("${profile.sejarah_image_url || 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80'} ")`
+                backgroundImage: `url("${profile.sejarah_image_url || 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80'}")`
               }}
             />
             {/* Background absolute floating design cards */}
