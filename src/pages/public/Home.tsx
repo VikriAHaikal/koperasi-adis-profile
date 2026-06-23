@@ -180,7 +180,7 @@ export const Home: React.FC<HomeProps> = ({ slides, profile, units, news, contac
               {/* Graphic illustration */}
               <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
                 <img 
-                  src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80" 
+                  src={profile.sejarah_image_url || "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80"} 
                   alt="Tentang Kopkar Adis"
                   style={{ width: '100%', maxWidth: '450px', height: 'auto', aspectRatio: '4 / 3', objectFit: 'cover', borderRadius: '20px', boxShadow: 'var(--shadow-lg)' }}
                   loading="lazy"
