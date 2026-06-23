@@ -58,6 +58,42 @@ export const AboutPage: React.FC<AboutPageProps> = ({ profile }) => {
 
   if (!profile) return null;
 
+  // Filter org structure members dynamically by role keywords
+  const orgStructure = profile.org_structure || [];
+  
+  const ketuaList = orgStructure.filter(m => 
+    m.role.toLowerCase().includes('ketua') && 
+    !m.role.toLowerCase().includes('pengawas') && 
+    !m.role.toLowerCase().includes('wakil')
+  );
+  
+  const harianList = orgStructure.filter(m => 
+    m.role.toLowerCase().includes('sekretaris') || 
+    m.role.toLowerCase().includes('bendahara') || 
+    m.role.toLowerCase().includes('wakil') || 
+    m.role.toLowerCase().includes('harian')
+  );
+  
+  const ketuaPengawasList = orgStructure.filter(m => 
+    m.role.toLowerCase().includes('pengawas') && 
+    m.role.toLowerCase().includes('ketua')
+  );
+  
+  const dewanPengawasList = orgStructure.filter(m => 
+    m.role.toLowerCase().includes('pengawas') && 
+    !m.role.toLowerCase().includes('ketua')
+  );
+  
+  const otherList = orgStructure.filter(m => {
+    const r = m.role.toLowerCase();
+    return !r.includes('ketua') && 
+           !r.includes('sekretaris') && 
+           !r.includes('bendahara') && 
+           !r.includes('pengawas') && 
+           !r.includes('wakil') && 
+           !r.includes('harian');
+  });
+
   const toggleAward = (index: number) => {
     setExpandedAwards(prev => ({
       ...prev,
@@ -243,49 +279,118 @@ export const AboutPage: React.FC<AboutPageProps> = ({ profile }) => {
               <h2 className="section-title">Struktur Organisasi</h2>
             </div>
 
-            {/* Hierarchical Org Tree Grid */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', alignItems: 'center' }}>
+            <div className="org-tree-container">
               
               {/* Level 1: Ketua Koperasi */}
-              {profile.org_structure.filter(m => m.role.toLowerCase().includes('ketua') && !m.role.toLowerCase().includes('pengawas')).length > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                  {profile.org_structure.filter(m => m.role.toLowerCase().includes('ketua') && !m.role.toLowerCase().includes('pengawas')).map((member, i) => (
-                    <div key={i} className="glass-card" style={{ width: '100%', maxWidth: '280px', padding: '24px', textAlign: 'center', backgroundColor: '#f8fafc', borderTop: '4px solid var(--primary)' }}>
-                      <div style={{ width: '90px', height: '90px', borderRadius: '50%', overflow: 'hidden', margin: '0 auto 15px auto', border: '3px solid white', boxShadow: 'var(--shadow-md)' }}>
-                        <img src={member.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              {ketuaList.length > 0 && (
+                <div className="org-tier">
+                  {ketuaList.map((member, i) => (
+                    <div key={i} className="org-card tier-1">
+                      <div className="org-avatar-wrapper">
+                        <img 
+                          src={member.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'} 
+                          alt={member.name} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
                       </div>
-                      <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-dark)', marginBottom: '5px' }}>{member.name}</h4>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--primary)', backgroundColor: 'rgba(15, 98, 254, 0.1)', padding: '4px 12px', borderRadius: '50px', display: 'inline-block' }}>{member.role}</span>
+                      <h4 className="org-name">{member.name}</h4>
+                      <span className="org-badge primary-badge">{member.role}</span>
                     </div>
                   ))}
                 </div>
+              )}
+
+              {/* Connector Line between L1 and L2 */}
+              {ketuaList.length > 0 && harianList.length > 0 && (
+                <div className="org-connector" />
               )}
 
               {/* Level 2: Pengurus Harian (Sekretaris, Bendahara) */}
-              {profile.org_structure.filter(m => m.role.toLowerCase().includes('sekretaris') || m.role.toLowerCase().includes('bendahara')).length > 0 && (
-                <div style={{ display: 'flex', gap: '30px', justifyContent: 'center', flexWrap: 'wrap', width: '100%' }}>
-                  {profile.org_structure.filter(m => m.role.toLowerCase().includes('sekretaris') || m.role.toLowerCase().includes('bendahara')).map((member, i) => (
-                    <div key={i} className="glass-card" style={{ width: '100%', maxWidth: '260px', padding: '20px', textAlign: 'center', backgroundColor: '#f8fafc', borderTop: '4px solid var(--secondary)' }}>
-                      <div style={{ width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', margin: '0 auto 15px auto', border: '3px solid white', boxShadow: 'var(--shadow-md)' }}>
-                        <img src={member.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              {harianList.length > 0 && (
+                <div className="org-tier">
+                  {harianList.map((member, i) => (
+                    <div key={i} className="org-card tier-2">
+                      <div className="org-avatar-wrapper" style={{ width: '75px', height: '75px' }}>
+                        <img 
+                          src={member.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'} 
+                          alt={member.name} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
                       </div>
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-dark)', marginBottom: '5px' }}>{member.name}</h4>
-                      <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--secondary)', backgroundColor: 'rgba(79, 138, 255, 0.1)', padding: '4px 12px', borderRadius: '50px', display: 'inline-block' }}>{member.role}</span>
+                      <h4 className="org-name" style={{ fontSize: '1rem' }}>{member.name}</h4>
+                      <span className="org-badge secondary-badge" style={{ fontSize: '0.7rem' }}>{member.role}</span>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Level 3: Dewan Pengawas */}
-              {profile.org_structure.filter(m => m.role.toLowerCase().includes('pengawas')).length > 0 && (
-                <div style={{ display: 'flex', gap: '30px', justifyContent: 'center', flexWrap: 'wrap', width: '100%', borderTop: '1px dashed #e2e8f0', paddingTop: '30px' }}>
-                  {profile.org_structure.filter(m => m.role.toLowerCase().includes('pengawas')).map((member, i) => (
-                    <div key={i} className="glass-card" style={{ width: '100%', maxWidth: '240px', padding: '20px', textAlign: 'center', backgroundColor: '#f8fafc', borderTop: '4px solid var(--accent)' }}>
-                      <div style={{ width: '75px', height: '75px', borderRadius: '50%', overflow: 'hidden', margin: '0 auto 15px auto', border: '3px solid white', boxShadow: 'var(--shadow-md)' }}>
-                        <img src={member.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              {/* Dashed Separator Line with label "Badan Pengawas" separating Management (Pengurus) & Supervisory (Pengawas) */}
+              {((ketuaList.length > 0 || harianList.length > 0) && (ketuaPengawasList.length > 0 || dewanPengawasList.length > 0)) && (
+                <div className="org-connector-dashed" />
+              )}
+
+              {/* Level 3: Ketua Pengawas */}
+              {ketuaPengawasList.length > 0 && (
+                <div className="org-tier">
+                  {ketuaPengawasList.map((member, i) => (
+                    <div key={i} className="org-card tier-3">
+                      <div className="org-avatar-wrapper" style={{ width: '75px', height: '75px' }}>
+                        <img 
+                          src={member.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'} 
+                          alt={member.name} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
                       </div>
-                      <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-dark)', marginBottom: '5px' }}>{member.name}</h4>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--accent)', backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '4px 10px', borderRadius: '50px', display: 'inline-block' }}>{member.role}</span>
+                      <h4 className="org-name" style={{ fontSize: '1rem' }}>{member.name}</h4>
+                      <span className="org-badge accent-badge" style={{ fontSize: '0.7rem' }}>{member.role}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Connector Line between L3 and L4 */}
+              {ketuaPengawasList.length > 0 && dewanPengawasList.length > 0 && (
+                <div className="org-connector" style={{ background: 'var(--accent)' }} />
+              )}
+
+              {/* Level 4: Anggota Dewan Pengawas */}
+              {dewanPengawasList.length > 0 && (
+                <div className="org-tier">
+                  {dewanPengawasList.map((member, i) => (
+                    <div key={i} className="org-card tier-4">
+                      <div className="org-avatar-wrapper" style={{ width: '70px', height: '70px' }}>
+                        <img 
+                          src={member.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'} 
+                          alt={member.name} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
+                      </div>
+                      <h4 className="org-name" style={{ fontSize: '0.95rem' }}>{member.name}</h4>
+                      <span className="org-badge accent-badge" style={{ fontSize: '0.68rem', opacity: 0.85 }}>{member.role}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Connector Line for other members */}
+              {otherList.length > 0 && (
+                <div className="org-connector" style={{ background: '#64748b' }} />
+              )}
+
+              {/* Level 5: Anggota/Staf Lainnya */}
+              {otherList.length > 0 && (
+                <div className="org-tier">
+                  {otherList.map((member, i) => (
+                    <div key={i} className="org-card tier-5">
+                      <div className="org-avatar-wrapper" style={{ width: '70px', height: '70px' }}>
+                        <img 
+                          src={member.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'} 
+                          alt={member.name} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
+                      </div>
+                      <h4 className="org-name" style={{ fontSize: '0.95rem' }}>{member.name}</h4>
+                      <span className="org-badge gray-badge" style={{ fontSize: '0.68rem' }}>{member.role}</span>
                     </div>
                   ))}
                 </div>

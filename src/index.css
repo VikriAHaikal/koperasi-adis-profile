@@ -1727,6 +1727,163 @@ button, input, textarea, select {
   }
 }
 
+/* Bagan Struktur Organisasi (Org Chart) Styles */
+.org-tree-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  gap: 0px;
+}
+
+.org-tier {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.org-connector {
+  width: 2px;
+  height: 32px;
+  background: linear-gradient(180deg, var(--primary), var(--secondary));
+  position: relative;
+  z-index: 1;
+}
+
+.org-connector-dashed {
+  width: 100%;
+  max-width: 500px;
+  border-top: 2px dashed rgba(79, 138, 255, 0.4);
+  margin: 25px auto;
+  position: relative;
+  text-align: center;
+}
+
+.org-connector-dashed::after {
+  content: 'Badan Pengawas';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  padding: 2px 18px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--border-light);
+  border-radius: 50px;
+  letter-spacing: 1px;
+}
+
+/* Premium Org Card Style */
+.org-card {
+  width: 100%;
+  max-width: 260px;
+  padding: 24px 20px;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--border-light);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.org-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(15, 98, 254, 0.08);
+  border-color: rgba(15, 98, 254, 0.2);
+}
+
+.org-card.tier-1 {
+  border-top: 4px solid var(--primary);
+  max-width: 280px;
+}
+.org-card.tier-2 {
+  border-top: 4px solid var(--secondary);
+}
+.org-card.tier-3 {
+  border-top: 4px solid var(--accent);
+}
+.org-card.tier-4 {
+  border-top: 4px solid #10b981; /* Emerald */
+}
+.org-card.tier-5 {
+  border-top: 4px solid #64748b; /* Slate */
+}
+
+.org-avatar-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto 15px auto;
+  border: 3px solid white;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.3s ease;
+}
+
+.org-card:hover .org-avatar-wrapper {
+  transform: scale(1.06);
+}
+
+.org-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+  font-family: var(--font-heading);
+}
+
+.org-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 50px;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.org-badge.primary-badge {
+  color: var(--primary);
+  background-color: rgba(15, 98, 254, 0.08);
+}
+
+.org-badge.secondary-badge {
+  color: var(--secondary);
+  background-color: rgba(79, 138, 255, 0.08);
+}
+
+.org-badge.accent-badge {
+  color: var(--accent);
+  background-color: rgba(16, 185, 129, 0.08);
+}
+
+.org-badge.gray-badge {
+  color: #64748b;
+  background-color: rgba(100, 116, 139, 0.08);
+}
+
+@media (max-width: 576px) {
+  .org-card {
+    max-width: 100% !important;
+  }
+  .org-tier {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+}
+
+
 
 
 
