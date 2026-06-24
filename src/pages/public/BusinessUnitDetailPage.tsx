@@ -37,63 +37,36 @@ const BranchCard: React.FC<BranchCardProps> = ({ branch, onZoom }) => {
     }} className="branch-card">
       <div 
         className="branch-img-container" 
-        style={{ height: '220px', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}
-        onClick={() => handleNext()}
+        style={{ height: '220px', overflow: 'hidden', position: 'relative', cursor: 'zoom-in' }}
+        onClick={() => onZoom(images, activeImgIndex, branch.name)}
       >
         <img 
           src={images[activeImgIndex]} 
           alt={`${branch.name} ${activeImgIndex + 1}`} 
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
-        
-        {/* Zoom Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onZoom(images, activeImgIndex, branch.name);
-          }}
-          type="button"
-          style={{
-            position: 'absolute',
-            top: '12px',
-            right: '12px',
-            backgroundColor: 'rgba(255, 255, 255, 0.85)',
-            backdropFilter: 'blur(4px)',
-            border: 'none',
-            color: 'var(--text-dark)',
-            width: '36px',
-            height: '36px',
-            borderRadius: '50%',
+
+        {/* Hover overlay hint */}
+        <div className="branch-img-overlay">
+          <div style={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 3,
-            cursor: 'pointer',
-            boxShadow: 'var(--shadow-sm)',
-            transition: 'transform 0.2s, background-color 0.2s, color 0.2s'
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.transform = 'scale(1.1)';
-            e.currentTarget.style.backgroundColor = '#ffffff';
-            e.currentTarget.style.color = 'var(--primary)';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
-            e.currentTarget.style.color = 'var(--text-dark)';
-          }}
-          title="Perbesar Foto"
-        >
-          <Icons.ZoomIn size={18} />
-        </button>
-
-        <div className="branch-img-overlay" />
+            gap: '8px',
+            backgroundColor: 'rgba(15, 23, 42, 0.55)',
+            padding: '8px 16px',
+            borderRadius: '30px',
+            backdropFilter: 'blur(4px)'
+          }}>
+            <Icons.ZoomIn size={18} color="white" />
+            <span style={{ color: 'white', fontSize: '0.82rem', fontWeight: 700 }}>Lihat Foto</span>
+          </div>
+        </div>
 
         {/* Slideshow controls inside card image */}
         {images.length > 1 && (
           <>
             <button
-              onClick={handlePrev}
+              onClick={(e) => { e.stopPropagation(); handlePrev(e); }}
               type="button"
               style={{
                 position: 'absolute',
@@ -109,7 +82,7 @@ const BranchCard: React.FC<BranchCardProps> = ({ branch, onZoom }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                zIndex: 2,
+                zIndex: 4,
                 cursor: 'pointer',
                 transition: 'background-color 0.2s'
               }}
@@ -120,7 +93,7 @@ const BranchCard: React.FC<BranchCardProps> = ({ branch, onZoom }) => {
               <Icons.ChevronLeft size={18} />
             </button>
             <button
-              onClick={handleNext}
+              onClick={(e) => { e.stopPropagation(); handleNext(e); }}
               type="button"
               style={{
                 position: 'absolute',
@@ -136,7 +109,7 @@ const BranchCard: React.FC<BranchCardProps> = ({ branch, onZoom }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                zIndex: 2,
+                zIndex: 4,
                 cursor: 'pointer',
                 transition: 'background-color 0.2s'
               }}
@@ -904,10 +877,13 @@ export const BusinessUnitDetailPage: React.FC<BusinessUnitDetailPageProps> = ({ 
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(15, 98, 254, 0.05);
+          background: rgba(15, 23, 42, 0.25);
           opacity: 0;
           transition: opacity 0.3s ease;
           z-index: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .branch-img-container:hover .branch-img-overlay {
           opacity: 1;
