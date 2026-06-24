@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { dbService } from '../../../services/db';
-import type { BusinessUnit, ProfileContent, BusinessUnitDetail } from '../../../services/db';
+import type { BusinessUnit, ProfileContent, BusinessUnitDetail, BusinessUnitBranch } from '../../../services/db';
 import { Plus, Edit2, Trash2, X, Image as ImageIcon, ShieldAlert, ShoppingBag, Wallet, Truck, Award } from 'lucide-react';
 
 interface UnitsTabProps {
@@ -41,6 +41,21 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
   const [longDesc, setLongDesc] = useState('');
   const [extraInfo, setExtraInfo] = useState('');
 
+  // Dynamic branches list
+  const [branches, setBranches] = useState<BusinessUnitBranch[]>([]);
+
+  // Branch editor form states
+  const [branchForm, setBranchForm] = useState<Omit<BusinessUnitBranch, 'id'>>({
+    name: '',
+    description: '',
+    image_url: '',
+    hours: '',
+    whatsapp: '',
+    map_url: ''
+  });
+  const [editingBranchId, setEditingBranchId] = useState<string | null>(null);
+  const [isBranchUploading, setIsBranchUploading] = useState(false);
+
   const handleEditUnit = (unit: BusinessUnit) => {
     setUnitForm({
       name: unit.name,
@@ -54,6 +69,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
     setLogoUrl(details?.logo_url || '');
     setLongDesc(details?.long_description || '');
     setExtraInfo(details?.extra_info || '');
+    setBranches(details?.branches || []);
     
     setIsEditing(unit.id);
   };
@@ -100,6 +116,85 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
     }
   };
 
+  const handleBranchPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setIsBranchUploading(true);
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `branch_${Date.now()}.${fileExt}`;
+        const filePath = `branches/${fileName}`;
+        
+        const publicUrl = await dbService.uploadFile('images', filePath, file);
+        setBranchForm(prev => ({ ...prev, image_url: publicUrl }));
+        showToast('Foto cabang berhasil diunggah.', 'success');
+      } catch (err: any) {
+        console.error(err);
+        showToast(err.message || 'Gagal mengunggah foto cabang.', 'error');
+      } finally {
+        setIsBranchUploading(false);
+      }
+    }
+  };
+
+  const handleAddOrUpdateBranch = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!branchForm.name || !branchForm.hours || !branchForm.image_url) {
+      showToast('Nama, Jam Operasional, dan Foto Cabang wajib diisi.', 'error');
+      return;
+    }
+
+    if (editingBranchId) {
+      setBranches(prev => prev.map(b => b.id === editingBranchId ? { ...b, ...branchForm } : b));
+      setEditingBranchId(null);
+      showToast('Data cabang berhasil diperbarui.', 'success');
+    } else {
+      const newBranch: BusinessUnitBranch = {
+        id: `br-${Date.now()}`,
+        ...branchForm
+      };
+      setBranches(prev => [...prev, newBranch]);
+      showToast('Cabang baru ditambahkan ke daftar.', 'success');
+    }
+
+    setBranchForm({
+      name: '',
+      description: '',
+      image_url: '',
+      hours: '',
+      whatsapp: '',
+      map_url: ''
+    });
+  };
+
+  const handleEditBranchClick = (branch: BusinessUnitBranch) => {
+    setBranchForm({
+      name: branch.name,
+      description: branch.description,
+      image_url: branch.image_url,
+      hours: branch.hours,
+      whatsapp: branch.whatsapp,
+      map_url: branch.map_url || ''
+    });
+    setEditingBranchId(branch.id);
+  };
+
+  const handleDeleteBranchClick = (id: string) => {
+    setBranches(prev => prev.filter(b => b.id !== id));
+    if (editingBranchId === id) {
+      setEditingBranchId(null);
+      setBranchForm({
+        name: '',
+        description: '',
+        image_url: '',
+        hours: '',
+        whatsapp: '',
+        map_url: ''
+      });
+    }
+    showToast('Cabang dihapus dari daftar.', 'success');
+  };
+
   const handleSaveUnit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -128,7 +223,8 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
           unit_id: targetUnitId,
           logo_url: logoUrl,
           long_description: longDesc,
-          extra_info: extraInfo
+          extra_info: extraInfo,
+          branches: branches
         };
         
         let updatedDetails = [...(profile.unit_details || [])];
@@ -217,6 +313,9 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
               setLogoUrl('');
               setLongDesc('');
               setExtraInfo('');
+              setBranches([]);
+              setBranchForm({ name: '', description: '', image_url: '', hours: '', whatsapp: '', map_url: '' });
+              setEditingBranchId(null);
               setIsEditing('new'); 
             }} 
             className="btn btn-primary" 
@@ -486,6 +585,204 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
                     style={{ minHeight: '100px' }}
                     placeholder="Tulis jam operasional khusus, akad simpan pinjam, dll."
                   />
+                </div>
+
+                {/* ---------------- BRANCHES MANAGEMENT SUB-SECTION ---------------- */}
+                <div style={{ borderTop: '2px solid #f1f5f9', paddingTop: '15px', marginTop: '10px' }}>
+                  <h6 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '5px' }}>
+                    CABANG & LOKASI
+                  </h6>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted-dark)', marginBottom: '15px' }}>
+                    Tambahkan atau edit cabang/galeri foto untuk unit usaha ini. Foto cabang wajib diunggah.
+                  </p>
+                </div>
+
+                {/* List of existing branches */}
+                {branches.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                    {branches.map(branch => (
+                      <div 
+                        key={branch.id} 
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '12px',
+                          borderRadius: '12px',
+                          border: '1px solid var(--border-light)',
+                          backgroundColor: '#f8fafc'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <img 
+                            src={branch.image_url} 
+                            alt={branch.name} 
+                            style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0' }} 
+                          />
+                          <div>
+                            <strong style={{ fontSize: '0.85rem', display: 'block', color: 'var(--text-dark)' }}>{branch.name}</strong>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted-dark)' }}>{branch.hours}</span>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <button 
+                            type="button" 
+                            onClick={() => handleEditBranchClick(branch)}
+                            className="btn btn-secondary" 
+                            style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                          >
+                            <Edit2 size={12} />
+                          </button>
+                          <button 
+                            type="button" 
+                            onClick={() => handleDeleteBranchClick(branch.id)}
+                            className="btn btn-danger" 
+                            style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Sub-form to Add/Edit a branch */}
+                <div style={{
+                  padding: '15px',
+                  borderRadius: '16px',
+                  border: '1px solid rgba(15, 98, 254, 0.15)',
+                  backgroundColor: 'rgba(15, 98, 254, 0.02)'
+                }}>
+                  <strong style={{ fontSize: '0.85rem', display: 'block', color: 'var(--primary)', marginBottom: '10px' }}>
+                    {editingBranchId ? 'Sunting Data Cabang' : 'Tambah Cabang Baru'}
+                  </strong>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Nama Cabang *</label>
+                        <input 
+                          type="text" 
+                          value={branchForm.name} 
+                          onChange={e => setBranchForm(prev => ({ ...prev, name: e.target.value }))}
+                          className="form-input"
+                          style={{ fontSize: '0.82rem', padding: '6px 10px' }}
+                          placeholder="Contoh: Adis Mart 1"
+                        />
+                      </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Jam Operasional *</label>
+                        <input 
+                          type="text" 
+                          value={branchForm.hours} 
+                          onChange={e => setBranchForm(prev => ({ ...prev, hours: e.target.value }))}
+                          className="form-input"
+                          style={{ fontSize: '0.82rem', padding: '6px 10px' }}
+                          placeholder="Contoh: Senin - Jum'at: 06:00 - 21:00"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Deskripsi Cabang</label>
+                      <textarea 
+                        value={branchForm.description} 
+                        onChange={e => setBranchForm(prev => ({ ...prev, description: e.target.value }))}
+                        className="form-input"
+                        style={{ fontSize: '0.82rem', padding: '6px 10px', minHeight: '50px' }}
+                        placeholder="Detail lokasi atau jenis layanan cabang..."
+                      />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>No. WhatsApp Admin (Optional)</label>
+                        <input 
+                          type="text" 
+                          value={branchForm.whatsapp} 
+                          onChange={e => setBranchForm(prev => ({ ...prev, whatsapp: e.target.value }))}
+                          className="form-input"
+                          style={{ fontSize: '0.82rem', padding: '6px 10px' }}
+                          placeholder="Contoh: 628123456789"
+                        />
+                      </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Link Google Maps (Optional)</label>
+                        <input 
+                          type="text" 
+                          value={branchForm.map_url} 
+                          onChange={e => setBranchForm(prev => ({ ...prev, map_url: e.target.value }))}
+                          className="form-input"
+                          style={{ fontSize: '0.82rem', padding: '6px 10px' }}
+                          placeholder="https://maps.google.com/..."
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Foto Cabang *</label>
+                      {branchForm.image_url && (
+                        <div style={{ marginBottom: '8px' }}>
+                          <img 
+                            src={branchForm.image_url} 
+                            alt="Branch Preview" 
+                            style={{ width: '100%', maxHeight: '100px', objectFit: 'cover', borderRadius: '6px' }} 
+                          />
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handleBranchPhotoChange} 
+                          style={{ display: 'none' }} 
+                          id="branch-file-upload-modal" 
+                        />
+                        <label 
+                          htmlFor="branch-file-upload-modal" 
+                          className="btn btn-secondary" 
+                          style={{ 
+                            cursor: 'pointer', 
+                            padding: '6px 12px',
+                            fontSize: '0.78rem',
+                            gap: '6px',
+                            borderColor: branchForm.image_url ? 'var(--accent)' : 'var(--primary)',
+                            color: branchForm.image_url ? 'var(--accent)' : 'var(--primary)',
+                            background: 'white'
+                          }}
+                        >
+                          <ImageIcon size={14} />
+                          <span>{isBranchUploading ? 'Memproses...' : (branchForm.image_url ? 'Ganti Foto Cabang' : 'Pilih Foto Cabang')}</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '5px' }}>
+                      {editingBranchId && (
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            setEditingBranchId(null);
+                            setBranchForm({ name: '', description: '', image_url: '', hours: '', whatsapp: '', map_url: '' });
+                          }}
+                          className="btn btn-secondary" 
+                          style={{ padding: '6px 12px', fontSize: '0.78rem' }}
+                        >
+                          Batal
+                        </button>
+                      )}
+                      <button 
+                        type="button" 
+                        onClick={handleAddOrUpdateBranch}
+                        className="btn btn-primary" 
+                        style={{ padding: '6px 14px', fontSize: '0.78rem', backgroundColor: editingBranchId ? 'var(--accent)' : 'var(--primary)' }}
+                        disabled={isBranchUploading}
+                      >
+                        {editingBranchId ? '✓ Perbarui Cabang' : '+ Tambah Cabang'}
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
               </div>

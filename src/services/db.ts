@@ -34,11 +34,22 @@ export interface Partner {
   logo_url: string;
 }
 
+export interface BusinessUnitBranch {
+  id: string;
+  name: string;
+  description: string;
+  image_url: string;
+  hours: string;
+  whatsapp: string;
+  map_url?: string;
+}
+
 export interface BusinessUnitDetail {
   unit_id: string;
   logo_url?: string;
   long_description?: string;
   extra_info?: string;
+  branches?: BusinessUnitBranch[];
 }
 
 export interface CultureValue {
@@ -201,7 +212,34 @@ const defaultProfile: ProfileContent = {
       unit_id: 'unit-1',
       logo_url: '/logo-adismart.png',
       long_description: 'Adismart menyediakan sembako, makanan ringan, perlengkapan rumah tangga, pakaian kerja, hingga barang elektronik. Transaksi sangat mudah dengan dukungan cash, QRIS, maupun sistem potong gaji bulanan yang memudahkan keuangan karyawan.',
-      extra_info: 'Senin - Jum\'at:\nAdismart 1: 06:00 - 21:00 WIB\nAdismart 2: 06:30 - 17:00 WIB\n\nSetiap Hari:\nAdismart Balaraja: 06:00 - 22:00 WIB'
+      extra_info: 'Senin - Jum\'at:\nAdismart 1: 06:00 - 21:00 WIB\nAdismart 2: 06:30 - 17:00 WIB\n\nSetiap Hari:\nAdismart Balaraja: 06:00 - 22:00 WIB',
+      branches: [
+        {
+          id: 'br-1',
+          name: 'Adis Mart 1',
+          description: 'Terletak strategis di lingkungan Gedung A PT Adis Dimension Footwear, menyediakan kebutuhan pokok harian, minuman segar, dan camilan bagi karyawan di jam kerja.',
+          image_url: '/adismart-1.png',
+          hours: 'Senin - Jum\'at: 06:00 - 21:00 WIB',
+          whatsapp: '628123456789'
+        },
+        {
+          id: 'br-2',
+          name: 'Adis Mart 2',
+          description: 'Terletak di area produksi Gedung B, menyediakan minimarket belanja cepat, kebutuhan seragam kerja karyawan, serta ATK penunjang administrasi internal.',
+          image_url: '/adismart-2.png',
+          hours: 'Senin - Jum\'at: 06:30 - 17:00 WIB',
+          whatsapp: '628123456789'
+        },
+        {
+          id: 'br-3',
+          name: 'Adis Mart Balaraja',
+          description: 'Cabang retail mandiri di luar kawasan industri Balaraja, terbuka penuh untuk umum serta melayani pembelian dalam volume besar bagi anggota dan keluarga karyawan.',
+          image_url: '/adismart-balaraja.png',
+          hours: 'Setiap Hari: 06:00 - 22:00 WIB',
+          whatsapp: '628123456789',
+          map_url: 'https://maps.google.com'
+        }
+      ]
     },
     {
       unit_id: 'unit-2',
@@ -312,6 +350,15 @@ const initLocalDB = () => {
       if (!profile.unit_details) {
         profile.unit_details = defaultProfile.unit_details;
         changed = true;
+      } else {
+        const adisMartDetails = profile.unit_details.find((d: any) => d.unit_id === 'unit-1');
+        if (adisMartDetails && !adisMartDetails.branches) {
+          const defaultAdisMart = defaultProfile.unit_details?.find(d => d.unit_id === 'unit-1');
+          if (defaultAdisMart) {
+            adisMartDetails.branches = defaultAdisMart.branches;
+            changed = true;
+          }
+        }
       }
       if (!profile.budaya) {
         profile.budaya = defaultProfile.budaya;

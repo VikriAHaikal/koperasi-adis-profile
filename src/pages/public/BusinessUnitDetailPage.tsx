@@ -174,297 +174,162 @@ export const BusinessUnitDetailPage: React.FC<BusinessUnitDetailPageProps> = ({ 
         </div>
       </div>
 
-      {/* 3. MULTIPLE PHOTOS SHOWCASE (Khusus Adis Mart) */}
-      {isAdisMart && (
+      {/* 3. DYNAMIC BRANCHES SHOWCASE */}
+      {details?.branches && details.branches.length > 0 && (
         <div className="container" style={{ marginBottom: '50px' }}>
           <div style={{ textAlign: 'center', marginBottom: '30px' }}>
             <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '1px', textTransform: 'uppercase' }}>GALERI FOTO & CABANG</span>
             <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-dark)', fontFamily: 'var(--font-heading)', marginTop: '5px', marginBottom: '10px' }}>
-              Kunjungi Cabang Resmi Adis Mart
+              Kunjungi Cabang Resmi {unit.name}
             </h2>
             <p style={{ color: 'var(--text-muted-dark)', maxWidth: '600px', margin: '0 auto', fontSize: '0.95rem' }}>
-              Adis Mart siap melayani kebutuhan harian Anda di berbagai lokasi strategis pabrik dan wilayah luar pabrik. Klik foto untuk memperbesar tampilan.
+              Kami siap melayani kebutuhan Anda di berbagai lokasi resmi kami. Klik foto untuk memperbesar tampilan.
             </p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '30px' }}>
-            
-            {/* Cabang 1: Adis Mart 1 */}
-            <div style={{
-              backgroundColor: 'white',
-              borderRadius: '24px',
-              overflow: 'hidden',
-              boxShadow: 'var(--shadow-md)',
-              border: '1px solid var(--border-light)',
-              display: 'flex',
-              flexDirection: 'column',
-              transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-            }} className="branch-card">
-              <div 
-                className="branch-img-container" 
-                style={{ height: '220px', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}
-                onClick={() => setActivePhoto({ src: '/adismart-1.png', title: 'Interior Minimarket Adis Mart 1' })}
-              >
-                <img 
-                  src="/adismart-1.png" 
-                  alt="Adis Mart 1" 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-                <div className="branch-img-overlay">
-                  <Icons.ZoomIn size={32} color="white" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.35))' }} />
-                </div>
-                <span style={{
-                  position: 'absolute',
-                  top: '15px',
-                  right: '15px',
-                  backgroundColor: 'var(--primary)',
-                  color: 'white',
-                  padding: '6px 14px',
-                  borderRadius: '30px',
-                  fontSize: '0.72rem',
-                  fontWeight: 800,
-                  letterSpacing: '0.5px',
-                  zIndex: 2
-                }}>
-                  CABANG INTERNAL 1
-                </span>
-              </div>
-              <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-dark)', marginBottom: '8px' }}>
-                  Adis Mart 1
-                </h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted-dark)', lineHeight: 1.5, marginBottom: '15px', flexGrow: 1 }}>
-                  Terletak strategis di lingkungan Gedung A PT Adis Dimension Footwear, menyediakan kebutuhan pokok harian, minuman segar, dan camilan bagi karyawan di jam kerja.
-                </p>
-                <div style={{
-                  backgroundColor: '#f8fafc',
-                  padding: '12px 16px',
-                  borderRadius: '16px',
-                  border: '1px solid #f1f5f9',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  marginBottom: '15px'
-                }}>
-                  <Clock size={16} color="var(--primary)" />
-                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-dark)' }}>
-                    Senin - Jum'at: 06:00 - 21:00 WIB
-                  </span>
-                </div>
-                <a 
-                  href="https://wa.me/628123456789?text=Halo%20Admin%20Adis%20Mart%201,%20saya%20ingin%20bertanya..."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'block',
-                    padding: '10px 15px',
-                    backgroundColor: 'rgba(15, 98, 254, 0.08)',
-                    color: 'var(--primary)',
-                    borderRadius: '12px',
-                    fontWeight: 700,
-                    fontSize: '0.82rem',
-                    textAlign: 'center',
-                    textDecoration: 'none',
-                    transition: 'background-color 0.2s'
-                  }}
-                  className="branch-action-btn"
+            {details.branches.map((branch) => (
+              <div key={branch.id} style={{
+                backgroundColor: 'white',
+                borderRadius: '24px',
+                overflow: 'hidden',
+                boxShadow: 'var(--shadow-md)',
+                border: '1px solid var(--border-light)',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
+              }} className="branch-card">
+                <div 
+                  className="branch-img-container" 
+                  style={{ height: '220px', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}
+                  onClick={() => setActivePhoto({ src: branch.image_url, title: branch.name })}
                 >
-                  Hubungi Admin Cabang 1
-                </a>
-              </div>
-            </div>
-
-            {/* Cabang 2: Adis Mart 2 */}
-            <div style={{
-              backgroundColor: 'white',
-              borderRadius: '24px',
-              overflow: 'hidden',
-              boxShadow: 'var(--shadow-md)',
-              border: '1px solid var(--border-light)',
-              display: 'flex',
-              flexDirection: 'column',
-              transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-            }} className="branch-card">
-              <div 
-                className="branch-img-container" 
-                style={{ height: '220px', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}
-                onClick={() => setActivePhoto({ src: '/adismart-2.png', title: 'Konter Transaksi Belanja Adis Mart 2' })}
-              >
-                <img 
-                  src="/adismart-2.png" 
-                  alt="Adis Mart 2" 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-                <div className="branch-img-overlay">
-                  <Icons.ZoomIn size={32} color="white" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.35))' }} />
+                  <img 
+                    src={branch.image_url} 
+                    alt={branch.name} 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                  <div className="branch-img-overlay">
+                    <Icons.ZoomIn size={32} color="white" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.35))' }} />
+                  </div>
                 </div>
-                <span style={{
-                  position: 'absolute',
-                  top: '15px',
-                  right: '15px',
-                  backgroundColor: 'var(--accent)',
-                  color: 'white',
-                  padding: '6px 14px',
-                  borderRadius: '30px',
-                  fontSize: '0.72rem',
-                  fontWeight: 800,
-                  letterSpacing: '0.5px',
-                  zIndex: 2
-                }}>
-                  CABANG INTERNAL 2
-                </span>
-              </div>
-              <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-dark)', marginBottom: '8px' }}>
-                  Adis Mart 2
-                </h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted-dark)', lineHeight: 1.5, marginBottom: '15px', flexGrow: 1 }}>
-                  Terletak di area produksi Gedung B, menyediakan minimarket belanja cepat, kebutuhan seragam kerja karyawan, serta ATK penunjang administrasi internal.
-                </p>
-                <div style={{
-                  backgroundColor: '#f8fafc',
-                  padding: '12px 16px',
-                  borderRadius: '16px',
-                  border: '1px solid #f1f5f9',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  marginBottom: '15px'
-                }}>
-                  <Clock size={16} color="var(--accent)" />
-                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-dark)' }}>
-                    Senin - Jum'at: 06:30 - 17:00 WIB
-                  </span>
-                </div>
-                <a 
-                  href="https://wa.me/628123456789?text=Halo%20Admin%20Adis%20Mart%202,%20saya%20ingin%20bertanya..."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'block',
-                    padding: '10px 15px',
-                    backgroundColor: 'rgba(15, 98, 254, 0.08)',
-                    color: 'var(--primary)',
-                    borderRadius: '12px',
-                    fontWeight: 700,
-                    fontSize: '0.82rem',
-                    textAlign: 'center',
-                    textDecoration: 'none',
-                    transition: 'background-color 0.2s'
-                  }}
-                  className="branch-action-btn"
-                >
-                  Hubungi Admin Cabang 2
-                </a>
-              </div>
-            </div>
-
-            {/* Cabang 3: Adis Mart Balaraja */}
-            <div style={{
-              backgroundColor: 'white',
-              borderRadius: '24px',
-              overflow: 'hidden',
-              boxShadow: 'var(--shadow-md)',
-              border: '1px solid var(--border-light)',
-              display: 'flex',
-              flexDirection: 'column',
-              transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-            }} className="branch-card">
-              <div 
-                className="branch-img-container" 
-                style={{ height: '220px', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}
-                onClick={() => setActivePhoto({ src: '/adismart-balaraja.png', title: 'Tampak Depan Adis Mart Balaraja' })}
-              >
-                <img 
-                  src="/adismart-balaraja.png" 
-                  alt="Adis Mart Balaraja" 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-                <div className="branch-img-overlay">
-                  <Icons.ZoomIn size={32} color="white" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.35))' }} />
-                </div>
-                <span style={{
-                  position: 'absolute',
-                  top: '15px',
-                  right: '15px',
-                  backgroundColor: 'var(--gold)',
-                  color: 'var(--text-dark)',
-                  padding: '6px 14px',
-                  borderRadius: '30px',
-                  fontSize: '0.72rem',
-                  fontWeight: 800,
-                  letterSpacing: '0.5px',
-                  zIndex: 2
-                }}>
-                  CABANG EKSTERNAL
-                </span>
-              </div>
-              <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-dark)', marginBottom: '8px' }}>
-                  Adis Mart Balaraja
-                </h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted-dark)', lineHeight: 1.5, marginBottom: '15px', flexGrow: 1 }}>
-                  Cabang retail mandiri di luar kawasan industri Balaraja, terbuka penuh untuk umum serta melayani pembelian dalam volume besar bagi anggota dan keluarga karyawan.
-                </p>
-                <div style={{
-                  backgroundColor: '#f8fafc',
-                  padding: '12px 16px',
-                  borderRadius: '16px',
-                  border: '1px solid #f1f5f9',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  marginBottom: '15px'
-                }}>
-                  <Clock size={16} color="var(--gold)" />
-                  <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-dark)' }}>
-                    Buka Setiap Hari: 06:00 - 22:00 WIB
-                  </span>
-                </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <a 
-                    href="https://wa.me/628123456789?text=Halo%20Admin%20Adis%20Mart%20Balaraja,%20saya%20ingin%20bertanya..."
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      flex: 1,
-                      padding: '10px 12px',
-                      backgroundColor: 'rgba(15, 98, 254, 0.08)',
-                      color: 'var(--primary)',
-                      borderRadius: '12px',
-                      fontWeight: 700,
-                      fontSize: '0.82rem',
-                      textAlign: 'center',
-                      textDecoration: 'none',
-                      transition: 'background-color 0.2s'
-                    }}
-                    className="branch-action-btn"
-                  >
-                    Hubungi WA
-                  </a>
-                  <a 
-                    href="https://maps.google.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      padding: '10px 15px',
-                      backgroundColor: 'rgba(250, 191, 0, 0.12)',
-                      color: '#b48600',
-                      borderRadius: '12px',
-                      fontWeight: 700,
-                      fontSize: '0.82rem',
-                      textAlign: 'center',
-                      textDecoration: 'none',
-                      transition: 'background-color 0.2s'
-                    }}
-                    className="branch-action-btn-gold"
-                  >
-                    Petunjuk Rute
-                  </a>
+                <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-dark)', marginBottom: '8px' }}>
+                    {branch.name}
+                  </h3>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-muted-dark)', lineHeight: 1.5, marginBottom: '15px', flexGrow: 1 }}>
+                    {branch.description}
+                  </p>
+                  <div style={{
+                    backgroundColor: '#f8fafc',
+                    padding: '12px 16px',
+                    borderRadius: '16px',
+                    border: '1px solid #f1f5f9',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    marginBottom: '15px'
+                  }}>
+                    <Clock size={16} color="var(--primary)" />
+                    <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-dark)' }}>
+                      {branch.hours}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {branch.whatsapp && branch.map_url ? (
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <a 
+                          href={`https://wa.me/${branch.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Halo Admin ${branch.name}, saya ingin bertanya...`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            flex: 1,
+                            padding: '10px 12px',
+                            backgroundColor: 'rgba(15, 98, 254, 0.08)',
+                            color: 'var(--primary)',
+                            borderRadius: '12px',
+                            fontWeight: 700,
+                            fontSize: '0.82rem',
+                            textAlign: 'center',
+                            textDecoration: 'none',
+                            transition: 'background-color 0.2s'
+                          }}
+                          className="branch-action-btn"
+                        >
+                          Hubungi WA
+                        </a>
+                        <a 
+                          href={branch.map_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            padding: '10px 15px',
+                            backgroundColor: 'rgba(250, 191, 0, 0.12)',
+                            color: '#b48600',
+                            borderRadius: '12px',
+                            fontWeight: 700,
+                            fontSize: '0.82rem',
+                            textAlign: 'center',
+                            textDecoration: 'none',
+                            transition: 'background-color 0.2s'
+                          }}
+                          className="branch-action-btn-gold"
+                        >
+                          Petunjuk Rute
+                        </a>
+                      </div>
+                    ) : (
+                      <>
+                        {branch.whatsapp && (
+                          <a 
+                            href={`https://wa.me/${branch.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Halo Admin ${branch.name}, saya ingin bertanya...`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: 'block',
+                              padding: '10px 15px',
+                              backgroundColor: 'rgba(15, 98, 254, 0.08)',
+                              color: 'var(--primary)',
+                              borderRadius: '12px',
+                              fontWeight: 700,
+                              fontSize: '0.82rem',
+                              textAlign: 'center',
+                              textDecoration: 'none',
+                              transition: 'background-color 0.2s'
+                            }}
+                            className="branch-action-btn"
+                          >
+                            Hubungi Admin {branch.name}
+                          </a>
+                        )}
+                        {branch.map_url && (
+                          <a 
+                            href={branch.map_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: 'block',
+                              padding: '10px 15px',
+                              backgroundColor: 'rgba(250, 191, 0, 0.12)',
+                              color: '#b48600',
+                              borderRadius: '12px',
+                              fontWeight: 700,
+                              fontSize: '0.82rem',
+                              textAlign: 'center',
+                              textDecoration: 'none',
+                              transition: 'background-color 0.2s'
+                            }}
+                            className="branch-action-btn-gold"
+                          >
+                            Petunjuk Rute
+                          </a>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-
+            ))}
           </div>
         </div>
       )}
