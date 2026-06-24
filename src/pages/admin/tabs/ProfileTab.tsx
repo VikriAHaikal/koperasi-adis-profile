@@ -579,7 +579,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>Persentase Kenaikan SHU (%) *</label>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.88rem' }}>Persentase SHU yang dibagikan (%) *</label>
                 <input 
                   type="text" 
                   value={statsGrowth} 

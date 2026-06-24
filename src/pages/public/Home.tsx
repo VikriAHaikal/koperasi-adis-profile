@@ -149,7 +149,7 @@ export const Home: React.FC<HomeProps> = ({ slides, profile, units, news, contac
               <h3 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--text-dark)', marginBottom: '5px', fontFamily: 'var(--font-heading)' }}>
                 {stats.growth}%
               </h3>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted-dark)', fontWeight: 600 }}>Kenaikan SHU RAT 2025</p>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted-dark)', fontWeight: 600 }}>SHU yang dibagikan 2025</p>
             </div>
           </div>
         </div>
