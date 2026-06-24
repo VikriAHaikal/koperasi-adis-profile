@@ -7,15 +7,15 @@ import { SEO } from '../../components/SEO';
 
 interface BranchCardProps {
   branch: BusinessUnitBranch;
-  onZoom: (src: string, title: string) => void;
+  onZoom: (images: string[], index: number, title: string) => void;
 }
 
 const BranchCard: React.FC<BranchCardProps> = ({ branch, onZoom }) => {
   const [activeImgIndex, setActiveImgIndex] = React.useState(0);
   const images = branch.images && branch.images.length > 0 ? branch.images : ['https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=600&q=80'];
 
-  const handleNext = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleNext = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setActiveImgIndex((prev) => (prev + 1) % images.length);
   };
 
@@ -38,16 +38,56 @@ const BranchCard: React.FC<BranchCardProps> = ({ branch, onZoom }) => {
       <div 
         className="branch-img-container" 
         style={{ height: '220px', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}
-        onClick={() => onZoom(images[activeImgIndex], `${branch.name} (${activeImgIndex + 1}/${images.length})`)}
+        onClick={() => handleNext()}
       >
         <img 
           src={images[activeImgIndex]} 
           alt={`${branch.name} ${activeImgIndex + 1}`} 
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
-        <div className="branch-img-overlay">
-          <Icons.ZoomIn size={32} color="white" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.35))' }} />
-        </div>
+        
+        {/* Zoom Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onZoom(images, activeImgIndex, branch.name);
+          }}
+          type="button"
+          style={{
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(4px)',
+            border: 'none',
+            color: 'var(--text-dark)',
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 3,
+            cursor: 'pointer',
+            boxShadow: 'var(--shadow-sm)',
+            transition: 'transform 0.2s, background-color 0.2s, color 0.2s'
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.backgroundColor = '#ffffff';
+            e.currentTarget.style.color = 'var(--primary)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+            e.currentTarget.style.color = 'var(--text-dark)';
+          }}
+          title="Perbesar Foto"
+        >
+          <Icons.ZoomIn size={18} />
+        </button>
+
+        <div className="branch-img-overlay" />
 
         {/* Slideshow controls inside card image */}
         {images.length > 1 && (
@@ -267,7 +307,11 @@ export const BusinessUnitDetailPage: React.FC<BusinessUnitDetailPageProps> = ({ 
   const details = profile?.unit_details?.find(d => d.unit_id === id);
   
   // Lightbox active photo state
-  const [activePhoto, setActivePhoto] = React.useState<{ src: string; title: string } | null>(null);
+  const [activePhoto, setActivePhoto] = React.useState<{
+    images: string[];
+    index: number;
+    title: string;
+  } | null>(null);
 
   if (!unit) {
     return (
@@ -443,7 +487,7 @@ export const BusinessUnitDetailPage: React.FC<BusinessUnitDetailPageProps> = ({ 
               <BranchCard 
                 key={branch.id} 
                 branch={branch} 
-                onZoom={(src, title) => setActivePhoto({ src, title })} 
+                onZoom={(images, index, title) => setActivePhoto({ images, index, title })} 
               />
             ))}
           </div>
@@ -697,7 +741,8 @@ export const BusinessUnitDetailPage: React.FC<BusinessUnitDetailPageProps> = ({ 
                 justifyContent: 'center',
                 cursor: 'pointer',
                 fontSize: '1.5rem',
-                transition: 'background-color 0.2s'
+                transition: 'background-color 0.2s',
+                zIndex: 10001
               }}
               onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)'}
               onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
@@ -706,9 +751,83 @@ export const BusinessUnitDetailPage: React.FC<BusinessUnitDetailPageProps> = ({ 
               &times;
             </button>
             
+            {/* Slideshow controls inside zoom lightbox */}
+            {activePhoto.images.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActivePhoto(prev => prev ? {
+                      ...prev,
+                      index: (prev.index - 1 + prev.images.length) % prev.images.length
+                    } : null);
+                  }}
+                  type="button"
+                  className="lightbox-nav-btn lightbox-prev-btn"
+                  style={{
+                    position: 'absolute',
+                    left: '-70px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                    border: 'none',
+                    color: 'white',
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 10000,
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s, transform 0.2s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
+                  title="Foto Sebelumnya"
+                >
+                  <Icons.ChevronLeft size={24} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActivePhoto(prev => prev ? {
+                      ...prev,
+                      index: (prev.index + 1) % prev.images.length
+                    } : null);
+                  }}
+                  type="button"
+                  className="lightbox-nav-btn lightbox-next-btn"
+                  style={{
+                    position: 'absolute',
+                    right: '-70px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                    border: 'none',
+                    color: 'white',
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 10000,
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s, transform 0.2s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'}
+                  title="Foto Selanjutnya"
+                >
+                  <Icons.ChevronRight size={24} />
+                </button>
+              </>
+            )}
+
             <img 
-              src={activePhoto.src} 
-              alt={activePhoto.title} 
+              src={activePhoto.images[activePhoto.index]} 
+              alt={`${activePhoto.title} ${activePhoto.index + 1}`} 
               style={{ 
                 maxWidth: '100%', 
                 maxHeight: '70vh', 
@@ -726,8 +845,40 @@ export const BusinessUnitDetailPage: React.FC<BusinessUnitDetailPageProps> = ({ 
               textShadow: '0 2px 4px rgba(0,0,0,0.5)',
               textAlign: 'center'
             }}>
-              {activePhoto.title}
+              {activePhoto.title} {activePhoto.images.length > 1 ? `(${activePhoto.index + 1}/${activePhoto.images.length})` : ''}
             </div>
+
+            {/* Dots Indicator inside zoom lightbox */}
+            {activePhoto.images.length > 1 && (
+              <div style={{
+                marginTop: '12px',
+                display: 'flex',
+                gap: '8px',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                padding: '6px 12px',
+                borderRadius: '20px'
+              }}>
+                {activePhoto.images.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActivePhoto(prev => prev ? { ...prev, index: idx } : null);
+                    }}
+                    style={{
+                      border: 'none',
+                      padding: 0,
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      backgroundColor: idx === activePhoto.index ? 'white' : 'rgba(255, 255, 255, 0.4)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -753,12 +904,9 @@ export const BusinessUnitDetailPage: React.FC<BusinessUnitDetailPageProps> = ({ 
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(15, 98, 254, 0.2);
+          background: rgba(15, 98, 254, 0.05);
           opacity: 0;
           transition: opacity 0.3s ease;
-          display: flex;
-          align-items: center;
-          justifyContent: center;
           z-index: 1;
         }
         .branch-img-container:hover .branch-img-overlay {
@@ -783,6 +931,20 @@ export const BusinessUnitDetailPage: React.FC<BusinessUnitDetailPageProps> = ({ 
         @keyframes scaleUp {
           from { transform: scale(0.92); opacity: 0; }
           to { transform: scale(1); opacity: 1; }
+        }
+        @media (max-width: 768px) {
+          .lightbox-prev-btn {
+            left: 10px !important;
+            width: 40px !important;
+            height: 40px !important;
+            background-color: rgba(15, 23, 42, 0.6) !important;
+          }
+          .lightbox-next-btn {
+            right: 10px !important;
+            width: 40px !important;
+            height: 40px !important;
+            background-color: rgba(15, 23, 42, 0.6) !important;
+          }
         }
       `}</style>
     </div>
