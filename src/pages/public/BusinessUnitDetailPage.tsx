@@ -1,9 +1,260 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import type { BusinessUnit, ProfileContent } from '../../services/db';
+import type { BusinessUnit, ProfileContent, BusinessUnitBranch } from '../../services/db';
 import * as Icons from 'lucide-react';
 import { ArrowLeft, Clock, ShieldCheck, Truck, BadgeCheck } from 'lucide-react';
 import { SEO } from '../../components/SEO';
+
+interface BranchCardProps {
+  branch: BusinessUnitBranch;
+  onZoom: (src: string, title: string) => void;
+}
+
+const BranchCard: React.FC<BranchCardProps> = ({ branch, onZoom }) => {
+  const [activeImgIndex, setActiveImgIndex] = React.useState(0);
+  const images = branch.images && branch.images.length > 0 ? branch.images : ['https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=600&q=80'];
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setActiveImgIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setActiveImgIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  return (
+    <div style={{
+      backgroundColor: 'white',
+      borderRadius: '24px',
+      overflow: 'hidden',
+      boxShadow: 'var(--shadow-md)',
+      border: '1px solid var(--border-light)',
+      display: 'flex',
+      flexDirection: 'column',
+      transition: 'transform 0.3s ease, box-shadow 0.3s ease'
+    }} className="branch-card">
+      <div 
+        className="branch-img-container" 
+        style={{ height: '220px', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}
+        onClick={() => onZoom(images[activeImgIndex], `${branch.name} (${activeImgIndex + 1}/${images.length})`)}
+      >
+        <img 
+          src={images[activeImgIndex]} 
+          alt={`${branch.name} ${activeImgIndex + 1}`} 
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+        <div className="branch-img-overlay">
+          <Icons.ZoomIn size={32} color="white" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.35))' }} />
+        </div>
+
+        {/* Slideshow controls inside card image */}
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={handlePrev}
+              type="button"
+              style={{
+                position: 'absolute',
+                left: '10px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                backgroundColor: 'rgba(15, 23, 42, 0.65)',
+                border: 'none',
+                color: 'white',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 2,
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.85)'}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.65)'}
+              title="Foto Sebelumnya"
+            >
+              <Icons.ChevronLeft size={18} />
+            </button>
+            <button
+              onClick={handleNext}
+              type="button"
+              style={{
+                position: 'absolute',
+                right: '10px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                backgroundColor: 'rgba(15, 23, 42, 0.65)',
+                border: 'none',
+                color: 'white',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 2,
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.85)'}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.65)'}
+              title="Foto Selanjutnya"
+            >
+              <Icons.ChevronRight size={18} />
+            </button>
+
+            {/* Dots Indicator */}
+            <div style={{
+              position: 'absolute',
+              bottom: '12px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              gap: '6px',
+              zIndex: 2,
+              backgroundColor: 'rgba(15, 23, 42, 0.4)',
+              padding: '4px 8px',
+              borderRadius: '20px'
+            }}>
+              {images.map((_, idx) => (
+                <div 
+                  key={idx}
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: idx === activeImgIndex ? 'white' : 'rgba(255, 255, 255, 0.5)',
+                    transition: 'all 0.2s ease'
+                  }}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-dark)', marginBottom: '8px' }}>
+          {branch.name}
+        </h3>
+        <p style={{ fontSize: '0.88rem', color: 'var(--text-muted-dark)', lineHeight: 1.5, marginBottom: '15px', flexGrow: 1 }}>
+          {branch.description}
+        </p>
+        <div style={{
+          backgroundColor: '#f8fafc',
+          padding: '12px 16px',
+          borderRadius: '16px',
+          border: '1px solid #f1f5f9',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          marginBottom: '15px'
+        }}>
+          <Clock size={16} color="var(--primary)" />
+          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-dark)' }}>
+            {branch.hours}
+          </span>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {branch.whatsapp && branch.map_url ? (
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <a 
+                href={`https://wa.me/${branch.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Halo Admin ${branch.name}, saya ingin bertanya...`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  flex: 1,
+                  padding: '10px 12px',
+                  backgroundColor: 'rgba(15, 98, 254, 0.08)',
+                  color: 'var(--primary)',
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  textAlign: 'center',
+                  textDecoration: 'none',
+                  transition: 'background-color 0.2s'
+                }}
+                className="branch-action-btn"
+              >
+                Hubungi WA
+              </a>
+              <a 
+                href={branch.map_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  padding: '10px 15px',
+                  backgroundColor: 'rgba(250, 191, 0, 0.12)',
+                  color: '#b48600',
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  textAlign: 'center',
+                  textDecoration: 'none',
+                  transition: 'background-color 0.2s'
+                }}
+                className="branch-action-btn-gold"
+              >
+                Petunjuk Rute
+              </a>
+            </div>
+          ) : (
+            <>
+              {branch.whatsapp && (
+                <a 
+                  href={`https://wa.me/${branch.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Halo Admin ${branch.name}, saya ingin bertanya...`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'block',
+                    padding: '10px 15px',
+                    backgroundColor: 'rgba(15, 98, 254, 0.08)',
+                    color: 'var(--primary)',
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    textAlign: 'center',
+                    textDecoration: 'none',
+                    transition: 'background-color 0.2s'
+                  }}
+                  className="branch-action-btn"
+                >
+                  Hubungi Admin {branch.name}
+                </a>
+              )}
+              {branch.map_url && (
+                <a 
+                  href={branch.map_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'block',
+                    padding: '10px 15px',
+                    backgroundColor: 'rgba(250, 191, 0, 0.12)',
+                    color: '#b48600',
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    textAlign: 'center',
+                    textDecoration: 'none',
+                    transition: 'background-color 0.2s'
+                  }}
+                  className="branch-action-btn-gold"
+                >
+                  Petunjuk Rute
+                </a>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface BusinessUnitDetailPageProps {
   units: BusinessUnit[];
@@ -189,146 +440,11 @@ export const BusinessUnitDetailPage: React.FC<BusinessUnitDetailPageProps> = ({ 
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '30px' }}>
             {details.branches.map((branch) => (
-              <div key={branch.id} style={{
-                backgroundColor: 'white',
-                borderRadius: '24px',
-                overflow: 'hidden',
-                boxShadow: 'var(--shadow-md)',
-                border: '1px solid var(--border-light)',
-                display: 'flex',
-                flexDirection: 'column',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-              }} className="branch-card">
-                <div 
-                  className="branch-img-container" 
-                  style={{ height: '220px', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}
-                  onClick={() => setActivePhoto({ src: branch.image_url, title: branch.name })}
-                >
-                  <img 
-                    src={branch.image_url} 
-                    alt={branch.name} 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                  <div className="branch-img-overlay">
-                    <Icons.ZoomIn size={32} color="white" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.35))' }} />
-                  </div>
-                </div>
-                <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-dark)', marginBottom: '8px' }}>
-                    {branch.name}
-                  </h3>
-                  <p style={{ fontSize: '0.88rem', color: 'var(--text-muted-dark)', lineHeight: 1.5, marginBottom: '15px', flexGrow: 1 }}>
-                    {branch.description}
-                  </p>
-                  <div style={{
-                    backgroundColor: '#f8fafc',
-                    padding: '12px 16px',
-                    borderRadius: '16px',
-                    border: '1px solid #f1f5f9',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    marginBottom: '15px'
-                  }}>
-                    <Clock size={16} color="var(--primary)" />
-                    <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-dark)' }}>
-                      {branch.hours}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {branch.whatsapp && branch.map_url ? (
-                      <div style={{ display: 'flex', gap: '10px' }}>
-                        <a 
-                          href={`https://wa.me/${branch.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Halo Admin ${branch.name}, saya ingin bertanya...`)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            flex: 1,
-                            padding: '10px 12px',
-                            backgroundColor: 'rgba(15, 98, 254, 0.08)',
-                            color: 'var(--primary)',
-                            borderRadius: '12px',
-                            fontWeight: 700,
-                            fontSize: '0.82rem',
-                            textAlign: 'center',
-                            textDecoration: 'none',
-                            transition: 'background-color 0.2s'
-                          }}
-                          className="branch-action-btn"
-                        >
-                          Hubungi WA
-                        </a>
-                        <a 
-                          href={branch.map_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            padding: '10px 15px',
-                            backgroundColor: 'rgba(250, 191, 0, 0.12)',
-                            color: '#b48600',
-                            borderRadius: '12px',
-                            fontWeight: 700,
-                            fontSize: '0.82rem',
-                            textAlign: 'center',
-                            textDecoration: 'none',
-                            transition: 'background-color 0.2s'
-                          }}
-                          className="branch-action-btn-gold"
-                        >
-                          Petunjuk Rute
-                        </a>
-                      </div>
-                    ) : (
-                      <>
-                        {branch.whatsapp && (
-                          <a 
-                            href={`https://wa.me/${branch.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Halo Admin ${branch.name}, saya ingin bertanya...`)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              display: 'block',
-                              padding: '10px 15px',
-                              backgroundColor: 'rgba(15, 98, 254, 0.08)',
-                              color: 'var(--primary)',
-                              borderRadius: '12px',
-                              fontWeight: 700,
-                              fontSize: '0.82rem',
-                              textAlign: 'center',
-                              textDecoration: 'none',
-                              transition: 'background-color 0.2s'
-                            }}
-                            className="branch-action-btn"
-                          >
-                            Hubungi Admin {branch.name}
-                          </a>
-                        )}
-                        {branch.map_url && (
-                          <a 
-                            href={branch.map_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              display: 'block',
-                              padding: '10px 15px',
-                              backgroundColor: 'rgba(250, 191, 0, 0.12)',
-                              color: '#b48600',
-                              borderRadius: '12px',
-                              fontWeight: 700,
-                              fontSize: '0.82rem',
-                              textAlign: 'center',
-                              textDecoration: 'none',
-                              transition: 'background-color 0.2s'
-                            }}
-                            className="branch-action-btn-gold"
-                          >
-                            Petunjuk Rute
-                          </a>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <BranchCard 
+                key={branch.id} 
+                branch={branch} 
+                onZoom={(src, title) => setActivePhoto({ src, title })} 
+              />
             ))}
           </div>
         </div>

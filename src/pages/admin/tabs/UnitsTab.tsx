@@ -48,7 +48,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
   const [branchForm, setBranchForm] = useState<Omit<BusinessUnitBranch, 'id'>>({
     name: '',
     description: '',
-    image_url: '',
+    images: [],
     hours: '',
     whatsapp: '',
     map_url: ''
@@ -126,8 +126,8 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
         const filePath = `branches/${fileName}`;
         
         const publicUrl = await dbService.uploadFile('images', filePath, file);
-        setBranchForm(prev => ({ ...prev, image_url: publicUrl }));
-        showToast('Foto cabang berhasil diunggah.', 'success');
+        setBranchForm(prev => ({ ...prev, images: [...prev.images, publicUrl] }));
+        showToast('Foto cabang berhasil ditambahkan.', 'success');
       } catch (err: any) {
         console.error(err);
         showToast(err.message || 'Gagal mengunggah foto cabang.', 'error');
@@ -137,10 +137,17 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
     }
   };
 
+  const handleRemoveBranchPhoto = (imgIndex: number) => {
+    setBranchForm(prev => ({
+      ...prev,
+      images: prev.images.filter((_, idx) => idx !== imgIndex)
+    }));
+  };
+
   const handleAddOrUpdateBranch = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!branchForm.name || !branchForm.hours || !branchForm.image_url) {
-      showToast('Nama, Jam Operasional, dan Foto Cabang wajib diisi.', 'error');
+    if (!branchForm.name || !branchForm.hours || !branchForm.images || branchForm.images.length === 0) {
+      showToast('Nama, Jam Operasional, dan minimal satu Foto Cabang wajib diisi.', 'error');
       return;
     }
 
@@ -160,7 +167,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
     setBranchForm({
       name: '',
       description: '',
-      image_url: '',
+      images: [],
       hours: '',
       whatsapp: '',
       map_url: ''
@@ -171,7 +178,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
     setBranchForm({
       name: branch.name,
       description: branch.description,
-      image_url: branch.image_url,
+      images: branch.images || [],
       hours: branch.hours,
       whatsapp: branch.whatsapp,
       map_url: branch.map_url || ''
@@ -186,7 +193,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
       setBranchForm({
         name: '',
         description: '',
-        image_url: '',
+        images: [],
         hours: '',
         whatsapp: '',
         map_url: ''
@@ -314,7 +321,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
               setLongDesc('');
               setExtraInfo('');
               setBranches([]);
-              setBranchForm({ name: '', description: '', image_url: '', hours: '', whatsapp: '', map_url: '' });
+              setBranchForm({ name: '', description: '', images: [], hours: '', whatsapp: '', map_url: '' });
               setEditingBranchId(null);
               setIsEditing('new'); 
             }} 
@@ -615,7 +622,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <img 
-                            src={branch.image_url} 
+                            src={branch.images?.[0] || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=600&q=80'} 
                             alt={branch.name} 
                             style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0' }} 
                           />
@@ -721,14 +728,52 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
                     </div>
 
                     <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Foto Cabang *</label>
-                      {branchForm.image_url && (
-                        <div style={{ marginBottom: '8px' }}>
-                          <img 
-                            src={branchForm.image_url} 
-                            alt="Branch Preview" 
-                            style={{ width: '100%', maxHeight: '100px', objectFit: 'cover', borderRadius: '6px' }} 
-                          />
+                      <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Galeri Foto Cabang (Minimal 1) *</label>
+                      {branchForm.images && branchForm.images.length > 0 && (
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                          {branchForm.images.map((imgUrl, idx) => (
+                            <div 
+                              key={idx} 
+                              style={{ 
+                                position: 'relative', 
+                                width: '80px', 
+                                height: '60px', 
+                                borderRadius: '6px', 
+                                overflow: 'hidden', 
+                                border: '1px solid #cbd5e1' 
+                              }}
+                            >
+                              <img 
+                                src={imgUrl} 
+                                alt="" 
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveBranchPhoto(idx)}
+                                style={{
+                                  position: 'absolute',
+                                  top: '2px',
+                                  right: '2px',
+                                  backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                                  border: 'none',
+                                  color: 'white',
+                                  width: '18px',
+                                  height: '18px',
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '9px',
+                                  cursor: 'pointer',
+                                  padding: 0
+                                }}
+                                title="Hapus foto"
+                              >
+                                <X size={10} />
+                              </button>
+                            </div>
+                          ))}
                         </div>
                       )}
                       <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -747,13 +792,13 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
                             padding: '6px 12px',
                             fontSize: '0.78rem',
                             gap: '6px',
-                            borderColor: branchForm.image_url ? 'var(--accent)' : 'var(--primary)',
-                            color: branchForm.image_url ? 'var(--accent)' : 'var(--primary)',
+                            borderColor: 'var(--primary)',
+                            color: 'var(--primary)',
                             background: 'white'
                           }}
                         >
                           <ImageIcon size={14} />
-                          <span>{isBranchUploading ? 'Memproses...' : (branchForm.image_url ? 'Ganti Foto Cabang' : 'Pilih Foto Cabang')}</span>
+                          <span>{isBranchUploading ? 'Memproses...' : 'Tambah Foto Cabang'}</span>
                         </label>
                       </div>
                     </div>
@@ -764,7 +809,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
                           type="button"
                           onClick={() => {
                             setEditingBranchId(null);
-                            setBranchForm({ name: '', description: '', image_url: '', hours: '', whatsapp: '', map_url: '' });
+                            setBranchForm({ name: '', description: '', images: [], hours: '', whatsapp: '', map_url: '' });
                           }}
                           className="btn btn-secondary" 
                           style={{ padding: '6px 12px', fontSize: '0.78rem' }}

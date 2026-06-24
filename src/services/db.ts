@@ -38,7 +38,7 @@ export interface BusinessUnitBranch {
   id: string;
   name: string;
   description: string;
-  image_url: string;
+  images: string[];
   hours: string;
   whatsapp: string;
   map_url?: string;
@@ -218,7 +218,7 @@ const defaultProfile: ProfileContent = {
           id: 'br-1',
           name: 'Adis Mart 1',
           description: 'Terletak strategis di lingkungan Gedung A PT Adis Dimension Footwear, menyediakan kebutuhan pokok harian, minuman segar, dan camilan bagi karyawan di jam kerja.',
-          image_url: '/adismart-1.png',
+          images: ['/adismart-1.png', 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80'],
           hours: 'Senin - Jum\'at: 06:00 - 21:00 WIB',
           whatsapp: '628123456789'
         },
@@ -226,7 +226,7 @@ const defaultProfile: ProfileContent = {
           id: 'br-2',
           name: 'Adis Mart 2',
           description: 'Terletak di area produksi Gedung B, menyediakan minimarket belanja cepat, kebutuhan seragam kerja karyawan, serta ATK penunjang administrasi internal.',
-          image_url: '/adismart-2.png',
+          images: ['/adismart-2.png', 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80'],
           hours: 'Senin - Jum\'at: 06:30 - 17:00 WIB',
           whatsapp: '628123456789'
         },
@@ -234,7 +234,7 @@ const defaultProfile: ProfileContent = {
           id: 'br-3',
           name: 'Adis Mart Balaraja',
           description: 'Cabang retail mandiri di luar kawasan industri Balaraja, terbuka penuh untuk umum serta melayani pembelian dalam volume besar bagi anggota dan keluarga karyawan.',
-          image_url: '/adismart-balaraja.png',
+          images: ['/adismart-balaraja.png', 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80'],
           hours: 'Setiap Hari: 06:00 - 22:00 WIB',
           whatsapp: '628123456789',
           map_url: 'https://maps.google.com'
@@ -352,11 +352,28 @@ const initLocalDB = () => {
         changed = true;
       } else {
         const adisMartDetails = profile.unit_details.find((d: any) => d.unit_id === 'unit-1');
-        if (adisMartDetails && !adisMartDetails.branches) {
-          const defaultAdisMart = defaultProfile.unit_details?.find(d => d.unit_id === 'unit-1');
-          if (defaultAdisMart) {
-            adisMartDetails.branches = defaultAdisMart.branches;
-            changed = true;
+        if (adisMartDetails) {
+          if (!adisMartDetails.branches) {
+            const defaultAdisMart = defaultProfile.unit_details?.find(d => d.unit_id === 'unit-1');
+            if (defaultAdisMart) {
+              adisMartDetails.branches = defaultAdisMart.branches;
+              changed = true;
+            }
+          } else {
+            let migrated = false;
+            adisMartDetails.branches = adisMartDetails.branches.map((b: any) => {
+              if (b.image_url) {
+                b.images = [b.image_url];
+                delete b.image_url;
+                migrated = true;
+              }
+              if (!b.images) {
+                b.images = [];
+                migrated = true;
+              }
+              return b;
+            });
+            if (migrated) changed = true;
           }
         }
       }
