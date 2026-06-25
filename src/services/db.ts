@@ -674,7 +674,9 @@ export const dbService = {
       } catch (err) {
         console.error('Error during business units sync delete:', err);
       }
-      const { error } = await supabase.from('business_units').upsert(units);
+      // Strip order_index property to prevent Supabase column-not-found errors
+      const unitsForSupabase = units.map(({ order_index, ...rest }) => rest);
+      const { error } = await supabase.from('business_units').upsert(unitsForSupabase);
       if (error) {
         console.error('Supabase error upserting business_units:', error);
         throw error;
