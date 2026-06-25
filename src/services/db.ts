@@ -478,6 +478,73 @@ const getFilePathFromUrl = (bucketName: string, url: string): string | null => {
   return null;
 };
 
+const compressImage = (file: File, maxWidth = 1200, maxHeight = 1200, quality = 0.75): Promise<File> => {
+  return new Promise((resolve) => {
+    if (!file.type.startsWith('image/')) {
+      resolve(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const outputType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+        const fileExtension = file.type === 'image/png' ? '.png' : '.jpg';
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const baseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+              const name = `${baseName}${fileExtension}`;
+              const compressedFile = new File([blob], name, {
+                type: outputType,
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            } else {
+              resolve(file);
+            }
+          },
+          outputType,
+          outputType === 'image/jpeg' ? quality : undefined
+        );
+      };
+      img.onerror = () => resolve(file);
+    };
+    reader.onerror = () => resolve(file);
+  });
+};
+
 export const dbService = {
   // STORAGE DELETE METHOD
   async deleteFile(bucketName: string, fileUrl: string): Promise<void> {
@@ -869,8 +936,27 @@ export const dbService = {
 
   // STORAGE UPLOAD METHOD
   async uploadFile(bucketName: string, filePath: string, file: File): Promise<string> {
+    let fileToUpload = file;
+    let targetPath = filePath;
+
+    if (file.type.startsWith('image/')) {
+      try {
+        fileToUpload = await compressImage(file);
+        
+        // If it got compressed/converted to jpeg, adjust extension in path
+        if (fileToUpload.type === 'image/jpeg' && !targetPath.endsWith('.jpg') && !targetPath.endsWith('.jpeg')) {
+          const lastDot = targetPath.lastIndexOf('.');
+          if (lastDot !== -1) {
+            targetPath = targetPath.substring(0, lastDot) + '.jpg';
+          }
+        }
+      } catch (err) {
+        console.error('Gagal melakukan kompresi gambar, mengunggah file asli:', err);
+      }
+    }
+
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase.storage.from(bucketName).upload(filePath, file, {
+      const { data, error } = await supabase.storage.from(bucketName).upload(targetPath, fileToUpload, {
         upsert: true,
         cacheControl: '3600'
       });
@@ -892,7 +978,7 @@ export const dbService = {
         }
       };
       reader.onerror = (err) => reject(err);
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(fileToUpload);
     });
   },
 
