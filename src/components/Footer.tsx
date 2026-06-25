@@ -135,7 +135,7 @@ export const Footer: React.FC<FooterProps> = ({ contactInfo }) => {
 
         {/* Lower Footer */}
         <div className="lower-footer">
-          <p>© {new Date().getFullYear()} Koperasi Karyawan PT Adis Dimension Footwear. Hak Cipta Dilindungi.</p>
+          <p>© {new Date().getFullYear()} Koperasi Konsumen Karyawan PT Adis Dimension Footwear. Hak Cipta Dilindungi.</p>
           <button
             onClick={scrollToTop}
             style={{
