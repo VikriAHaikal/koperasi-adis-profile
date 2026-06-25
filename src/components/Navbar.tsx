@@ -59,7 +59,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onGoToAdmin }) => {
             }}
           />
           <div>
-            <h1 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-dark)', letterSpacing: '-0.5px', margin: 0 }}>
+            <h1 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-dark)', textTransform: 'uppercase', letterSpacing: '-0.5px', margin: 0 }}>
               Koperasi Konsumen Karyawan
             </h1>
             <p style={{ fontSize: '0.65rem', color: 'var(--text-muted-dark)', fontWeight: 500, margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
