@@ -134,7 +134,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ profile }) => {
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <h1 className="page-header-title">Tentang Kami</h1>
           <p className="page-header-subtitle">
-            Mengenal sejarah, visi, misi, dan landasan koperasi karyawan PT Adis Dimension Footwear.
+            Mengenal Sejarah, Visi, Misi, dan Landasan Koperasi Konsumen Karyawan PT Adis Dimension Footwear.
           </p>
         </div>
       </section>
