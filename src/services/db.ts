@@ -120,16 +120,7 @@ export interface ContactMessage {
   created_at: string;
 }
 
-export interface Registration {
-  id: string;
-  full_name: string;
-  nik: string;
-  division: string;
-  phone: string;
-  reason?: string;
-  status: 'Pending' | 'Approved' | 'Rejected';
-  created_at: string;
-}
+
 
 // Initial Mock Data
 const defaultHeroSlides: HeroSlide[] = [
@@ -423,41 +414,6 @@ const initLocalDB = () => {
   if (!localStorage.getItem('koperasi_contact')) localStorage.setItem('koperasi_contact', JSON.stringify(defaultContact));
   if (!localStorage.getItem('koperasi_messages')) localStorage.setItem('koperasi_messages', JSON.stringify([]));
 
-  const defaultRegistrations: Registration[] = [
-    {
-      id: 'reg-1',
-      full_name: 'Budi Santoso',
-      nik: 'ADIS-10123',
-      division: 'Production Line 3 / Assembly',
-      phone: '628123456780',
-      reason: 'Ingin memanfaatkan Adis Mart kredit',
-      status: 'Approved',
-      created_at: '2024-04-12T08:00:00Z'
-    },
-    {
-      id: 'reg-2',
-      full_name: 'Siti Aminah',
-      nik: 'ADIS-20456',
-      division: 'HRD / Administration',
-      phone: '628123456781',
-      reason: 'Untuk tabungan rutin bulanan',
-      status: 'Approved',
-      created_at: '2023-09-05T08:00:00Z'
-    },
-    {
-      id: 'reg-3',
-      full_name: 'Joko Susilo',
-      nik: 'ADIS-30789',
-      division: 'Logistics / Warehouse',
-      phone: '628123456782',
-      reason: 'Butuh simpan pinjam syariah',
-      status: 'Pending',
-      created_at: '2026-06-14T08:00:00Z'
-    }
-  ];
-  if (!localStorage.getItem('koperasi_registrations')) {
-    localStorage.setItem('koperasi_registrations', JSON.stringify(defaultRegistrations));
-  }
 };
 
 initLocalDB();
@@ -982,74 +938,5 @@ export const dbService = {
     });
   },
 
-  // REGISTRATIONS SERVICE
-  async getRegistrations(): Promise<Registration[]> {
-    if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase.from('registrations').select('*').order('created_at', { ascending: false });
-      if (!error && data) return data;
-      console.error('Supabase error fetching registrations, using local storage fallback:', error);
-    }
-    return JSON.parse(localStorage.getItem('koperasi_registrations') || '[]');
-  },
 
-  async saveRegistration(reg: Omit<Registration, 'id' | 'status' | 'created_at'>): Promise<void> {
-    const newReg: Registration = {
-      id: 'reg-' + Date.now(),
-      status: 'Pending',
-      created_at: new Date().toISOString(),
-      ...reg
-    };
-
-    // Save locally
-    const localRegs = JSON.parse(localStorage.getItem('koperasi_registrations') || '[]');
-    // Check duplication locally
-    if (localRegs.some((r: Registration) => r.nik.trim().toUpperCase() === reg.nik.trim().toUpperCase())) {
-      throw new Error(`NIK ${reg.nik} sudah terdaftar di sistem.`);
-    }
-    localRegs.unshift(newReg);
-    localStorage.setItem('koperasi_registrations', JSON.stringify(localRegs));
-
-    if (isSupabaseConfigured && supabase) {
-      const { error } = await supabase.from('registrations').insert(newReg);
-      if (error) {
-        if (error.code === '23505') {
-          throw new Error(`NIK ${reg.nik} sudah terdaftar di sistem.`);
-        }
-        console.error('Supabase error inserting registrations:', error);
-      }
-    }
-  },
-
-  async updateRegistrationStatus(id: string, status: 'Pending' | 'Approved' | 'Rejected'): Promise<void> {
-    const localRegs = JSON.parse(localStorage.getItem('koperasi_registrations') || '[]');
-    const updated = localRegs.map((r: Registration) => r.id === id ? { ...r, status } : r);
-    localStorage.setItem('koperasi_registrations', JSON.stringify(updated));
-
-    if (isSupabaseConfigured && supabase) {
-      const { error } = await supabase.from('registrations').update({ status }).eq('id', id);
-      if (error) console.error('Supabase error updating registration status:', error);
-    }
-  },
-
-  async deleteRegistration(id: string): Promise<void> {
-    const localRegs = JSON.parse(localStorage.getItem('koperasi_registrations') || '[]');
-    const filtered = localRegs.filter((r: Registration) => r.id !== id);
-    localStorage.setItem('koperasi_registrations', JSON.stringify(filtered));
-
-    if (isSupabaseConfigured && supabase) {
-      const { error } = await supabase.from('registrations').delete().eq('id', id);
-      if (error) console.error('Supabase error deleting registration:', error);
-    }
-  },
-
-  async checkRegistrationNik(nik: string): Promise<Registration | null> {
-    const cleanNik = nik.trim().toUpperCase();
-    if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase.from('registrations').select('*').eq('nik', cleanNik).maybeSingle();
-      if (!error && data) return data;
-      if (error) console.error('Supabase error checking NIK:', error);
-    }
-    const localRegs = JSON.parse(localStorage.getItem('koperasi_registrations') || '[]');
-    return localRegs.find((r: Registration) => r.nik.trim().toUpperCase() === cleanNik) || null;
-  }
 };

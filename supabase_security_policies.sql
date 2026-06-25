@@ -22,7 +22,6 @@ ALTER TABLE news_articles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contact_info ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE registrations ENABLE ROW LEVEL SECURITY;
 
 
 -- 2. KEBIJAKAN UNTUK TABEL CONTENT (BACA UMUM, TULIS HANYA ADMIN SAH)
@@ -71,12 +70,6 @@ DROP POLICY IF EXISTS "Allow public insert access for contact_messages" ON conta
 DROP POLICY IF EXISTS "Allow admin manage access for contact_messages" ON contact_messages;
 CREATE POLICY "Allow public insert access for contact_messages" ON contact_messages FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow admin manage access for contact_messages" ON contact_messages FOR ALL TO authenticated USING (true);
-
--- Tabel: registrations (Form Pendaftaran Anggota)
-DROP POLICY IF EXISTS "Allow public insert access for registrations" ON registrations;
-DROP POLICY IF EXISTS "Allow admin manage access for registrations" ON registrations;
-CREATE POLICY "Allow public insert access for registrations" ON registrations FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow admin manage access for registrations" ON registrations FOR ALL TO authenticated USING (true);
 
 
 -- 4. KEBIJAKAN PENGAMANAN UNTUK SUPABASE STORAGE BUCKETS

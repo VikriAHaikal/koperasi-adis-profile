@@ -129,28 +129,6 @@ ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public Insert Messages" ON contact_messages FOR INSERT WITH CHECK (true);
 CREATE POLICY "Admin Manage Messages" ON contact_messages FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
--- 9. Tabel Pendaftaran Anggota Baru
-CREATE TABLE IF NOT EXISTS registrations (
-  id TEXT PRIMARY KEY,
-  full_name TEXT NOT NULL,
-  nik TEXT NOT NULL UNIQUE,
-  division TEXT NOT NULL,
-  phone TEXT NOT NULL,
-  reason TEXT,
-  status TEXT DEFAULT 'Pending',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
 
-ALTER TABLE registrations ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public Read Registrations" ON registrations FOR SELECT USING (true);
-CREATE POLICY "Public Insert Registrations" ON registrations FOR INSERT WITH CHECK (true);
-CREATE POLICY "Admin Manage Registrations" ON registrations FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
--- Benih Data Awal untuk Demo NIK Checker
-INSERT INTO registrations (id, full_name, nik, division, phone, reason, status, created_at) VALUES
-('reg-1', 'Budi Santoso', 'ADIS-10123', 'Production Line 3 / Assembly', '628123456780', 'Ingin memanfaatkan Adis Mart kredit', 'Approved', '2024-04-12T08:00:00Z'),
-('reg-2', 'Siti Aminah', 'ADIS-20456', 'HRD / Administration', '628123456781', 'Untuk tabungan rutin bulanan', 'Approved', '2023-09-05T08:00:00Z'),
-('reg-3', 'Joko Susilo', 'ADIS-30789', 'Logistics / Warehouse', '628123456782', 'Butuh simpan pinjam syariah', 'Pending', '2026-06-14T08:00:00Z')
-ON CONFLICT (nik) DO NOTHING;
 
 
