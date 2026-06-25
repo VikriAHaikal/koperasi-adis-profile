@@ -80,6 +80,7 @@ export interface BusinessUnit {
   description: string;
   icon: string;
   image_url?: string;
+  order_index?: number;
 }
 
 export interface NewsArticle {

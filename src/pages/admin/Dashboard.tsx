@@ -105,9 +105,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ session, onLogout, onGoHom
       const fetchedContact = await dbService.getContact();
       const fetchedMessages = await dbService.getMessages();
 
+      // Sort business units by the order of unit_details in profile
+      let sortedUnits = [...fetchedUnits];
+      if (fetchedProfile && fetchedProfile.unit_details && fetchedProfile.unit_details.length > 0) {
+        const orderMap = new Map(fetchedProfile.unit_details.map((d, index) => [d.unit_id, index]));
+        sortedUnits.sort((a, b) => {
+          const indexA = orderMap.has(a.id) ? orderMap.get(a.id)! : 999;
+          const indexB = orderMap.has(b.id) ? orderMap.get(b.id)! : 999;
+          return indexA - indexB;
+        });
+      }
+
       setHeroSlides(fetchedHero);
       setProfile(fetchedProfile);
-      setUnits(fetchedUnits);
+      setUnits(sortedUnits);
       setNews(fetchedNews);
       setDocs(fetchedDocs);
       setContact(fetchedContact);

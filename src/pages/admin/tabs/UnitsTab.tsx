@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { dbService } from '../../../services/db';
 import type { BusinessUnit, ProfileContent, BusinessUnitDetail, BusinessUnitBranch } from '../../../services/db';
-import { Plus, Edit2, Trash2, X, Image as ImageIcon, ShieldAlert, ShoppingBag, Wallet, Truck, Award, Info, MapPin, Clock, UploadCloud, Check, ArrowLeft } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Image as ImageIcon, ShieldAlert, ShoppingBag, Wallet, Truck, Award, Info, MapPin, Clock, UploadCloud, Check, ArrowLeft, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface UnitsTabProps {
   units: BusinessUnit[];
@@ -56,6 +56,77 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
   });
   const [editingBranchId, setEditingBranchId] = useState<string | null>(null);
   const [isBranchUploading, setIsBranchUploading] = useState(false);
+
+  // Drag and drop state
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+  const moveUnit = async (fromIndex: number, toIndex: number) => {
+    if (fromIndex < 0 || fromIndex >= units.length || toIndex < 0 || toIndex >= units.length) return;
+    
+    setIsSaving(true);
+    try {
+      const updatedUnits = [...units];
+      const [removed] = updatedUnits.splice(fromIndex, 1);
+      updatedUnits.splice(toIndex, 0, removed);
+      
+      const unitsWithOrder = updatedUnits.map((u, idx) => ({
+        ...u,
+        order_index: idx
+      }));
+
+      // 1. Save basics to business_units
+      await dbService.saveBusinessUnits(unitsWithOrder);
+      setUnits(unitsWithOrder);
+      
+      // 2. Save details to profile.unit_details
+      if (profile && setProfile) {
+        const updatedDetails: BusinessUnitDetail[] = [];
+        unitsWithOrder.forEach(unitItem => {
+          const detail = profile.unit_details?.find(d => d.unit_id === unitItem.id);
+          if (detail) {
+            updatedDetails.push(detail);
+          }
+        });
+        
+        profile.unit_details?.forEach(detail => {
+          if (!updatedDetails.some(d => d.unit_id === detail.unit_id)) {
+            updatedDetails.push(detail);
+          }
+        });
+
+        const updatedProfile = { ...profile, unit_details: updatedDetails };
+        await dbService.saveProfile(updatedProfile);
+        setProfile(updatedProfile);
+      }
+      
+      showToast('Urutan unit usaha berhasil diperbarui.', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Gagal mengubah urutan unit usaha.', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = async (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+    await moveUnit(draggedIndex, index);
+    setDraggedIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
 
   const handleEditUnit = (unit: BusinessUnit) => {
     setUnitForm({
@@ -363,6 +434,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
           <table className="admin-table">
             <thead>
               <tr>
+                <th style={{ width: '90px', textAlign: 'center' }}>Urutan</th>
                 <th style={{ width: '100px' }}>Logo / Icon</th>
                 <th>Nama Unit Bisnis</th>
                 <th>Deskripsi Singkat</th>
@@ -374,18 +446,76 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
               {isInitialLoading ? (
                 Array.from({ length: 3 }).map((_, rIdx) => (
                   <tr key={rIdx}>
-                    {Array.from({ length: 5 }).map((_, cIdx) => (
+                    {Array.from({ length: 6 }).map((_, cIdx) => (
                       <td key={cIdx}>
-                        <div className="skeleton-line" style={{ width: cIdx === 0 ? '60px' : '90%' }}></div>
+                        <div className="skeleton-line" style={{ width: cIdx === 1 ? '60px' : '90%' }}></div>
                       </td>
                     ))}
                   </tr>
                 ))
               ) : (
-                units.map((unit) => {
+                units.map((unit, idx) => {
                   const details = profile?.unit_details?.find(d => d.unit_id === unit.id);
                   return (
-                    <tr key={unit.id}>
+                    <tr 
+                      key={unit.id}
+                      draggable={true}
+                      onDragStart={(e) => handleDragStart(e, idx)}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, idx)}
+                      onDragEnd={handleDragEnd}
+                      style={{
+                        opacity: draggedIndex === idx ? 0.4 : 1,
+                        backgroundColor: draggedIndex === idx ? '#f1f5f9' : 'transparent',
+                        transition: 'opacity 0.2s ease, background-color 0.2s ease',
+                        cursor: 'grab'
+                      }}
+                    >
+                      <td onClick={(e) => e.stopPropagation()}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                          <div style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', cursor: 'grab' }} title="Tahan dan seret untuk memindahkan">
+                            <GripVertical size={15} />
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <button
+                              type="button"
+                              onClick={() => moveUnit(idx, idx - 1)}
+                              disabled={idx === 0 || isSaving}
+                              style={{
+                                border: 'none',
+                                background: 'none',
+                                padding: '2px',
+                                cursor: idx === 0 ? 'not-allowed' : 'pointer',
+                                color: idx === 0 ? '#cbd5e1' : 'var(--primary)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                              title="Pindahkan ke atas"
+                            >
+                              <ArrowUp size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveUnit(idx, idx + 1)}
+                              disabled={idx === units.length - 1 || isSaving}
+                              style={{
+                                border: 'none',
+                                background: 'none',
+                                padding: '2px',
+                                cursor: idx === units.length - 1 ? 'not-allowed' : 'pointer',
+                                color: idx === units.length - 1 ? '#cbd5e1' : 'var(--primary)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                              title="Pindahkan ke bawah"
+                            >
+                              <ArrowDown size={13} />
+                            </button>
+                          </div>
+                        </div>
+                      </td>
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           {details?.logo_url ? (
@@ -418,7 +548,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
               )}
               {!isInitialLoading && units.length === 0 && (
                 <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-muted-dark)', padding: '15px' }}>Belum ada unit usaha.</td>
+                  <td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-muted-dark)', padding: '15px' }}>Belum ada unit usaha.</td>
                 </tr>
               )}
             </tbody>
