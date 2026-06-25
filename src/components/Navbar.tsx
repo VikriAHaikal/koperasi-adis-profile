@@ -27,7 +27,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onGoToAdmin }) => {
     { label: 'Tentang Kami', path: '/tentang-kami' },
     { label: 'Unit Usaha', path: '/unit-usaha' },
     { label: 'Berita', path: '/berita' },
-    { label: 'Laporan & Dokumen', path: '/laporan-dokumen' },
+    { label: 'Laporan RAT', path: '/laporan-rat' },
     { label: 'Kontak', path: '/kontak' },
   ];
 

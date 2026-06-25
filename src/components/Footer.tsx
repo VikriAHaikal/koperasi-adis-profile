@@ -112,7 +112,7 @@ export const Footer: React.FC<FooterProps> = ({ contactInfo }) => {
               <Link to="/tentang-kami" onClick={scrollToTop} style={{ color: 'var(--text-muted-light)', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted-light)'}>Tentang Kami</Link>
               <Link to="/unit-usaha" onClick={scrollToTop} style={{ color: 'var(--text-muted-light)', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted-light)'}>Unit Bisnis</Link>
               <Link to="/berita" onClick={scrollToTop} style={{ color: 'var(--text-muted-light)', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted-light)'}>Berita & Agenda</Link>
-              <Link to="/laporan-dokumen" onClick={scrollToTop} style={{ color: 'var(--text-muted-light)', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted-light)'}>Laporan & Dokumen</Link>
+              <Link to="/laporan-rat" onClick={scrollToTop} style={{ color: 'var(--text-muted-light)', textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = 'white'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted-light)'}>Unduh LPJ RAT</Link>
             </div>
           </div>
 
@@ -135,7 +135,7 @@ export const Footer: React.FC<FooterProps> = ({ contactInfo }) => {
 
         {/* Lower Footer */}
         <div className="lower-footer">
-          <p>© {new Date().getFullYear()} Koperasi Konsumen Karyawan PT Adis Dimension Footwear. Hak Cipta Dilindungi.</p>
+          <p>© {new Date().getFullYear()} Koperasi Karyawan PT Adis Dimension Footwear. Hak Cipta Dilindungi.</p>
           <button
             onClick={scrollToTop}
             style={{
