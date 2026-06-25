@@ -436,68 +436,118 @@ const getFilePathFromUrl = (bucketName: string, url: string): string | null => {
 
 const compressImage = (file: File, maxWidth = 1200, maxHeight = 1200, quality = 0.75): Promise<File> => {
   return new Promise((resolve) => {
-    if (!file.type.startsWith('image/')) {
+    const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
+    const isImage = file.type.startsWith('image/') || ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'jfif', 'pjpeg', 'pjp'].includes(fileExt);
+
+    if (!isImage) {
+      console.log('[Image Compression] Skip compression (not an image file):', file.name);
       resolve(file);
       return;
     }
 
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target?.result as string;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
+    console.log(`[Image Compression] Starting compression for ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB, type: ${file.type || 'unknown'})`);
 
-        if (width > height) {
-          if (width > maxWidth) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.src = objectUrl;
+
+    img.onload = () => {
+      // Clean up object URL immediately to release memory
+      URL.revokeObjectURL(objectUrl);
+
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
         }
-
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          resolve(file);
-          return;
+      } else {
+        if (height > maxHeight) {
+          width = Math.round((width * maxHeight) / height);
+          height = maxHeight;
         }
+      }
 
-        ctx.drawImage(img, 0, 0, width, height);
+      canvas.width = width;
+      canvas.height = height;
 
-        const outputType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
-        const fileExtension = file.type === 'image/png' ? '.png' : '.jpg';
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        console.warn('[Image Compression] Failed to get canvas 2D context, uploading original');
+        resolve(file);
+        return;
+      }
 
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              const baseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-              const name = `${baseName}${fileExtension}`;
-              const compressedFile = new File([blob], name, {
-                type: outputType,
-                lastModified: Date.now(),
-              });
-              resolve(compressedFile);
-            } else {
-              resolve(file);
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Determine output type and extension
+      let outputType = 'image/jpeg';
+      let fileExtension = '.jpg';
+      const isPng = file.type === 'image/png' || fileExt === 'png';
+
+      if (isPng) {
+        // Check if the PNG actually has transparency. If not, we convert it to JPEG to save massive space!
+        let hasAlpha = false;
+        try {
+          const imgData = ctx.getImageData(0, 0, width, height).data;
+          for (let i = 3; i < imgData.length; i += 4) {
+            if (imgData[i] < 255) {
+              hasAlpha = true;
+              break;
             }
-          },
-          outputType,
-          outputType === 'image/jpeg' ? quality : undefined
-        );
-      };
-      img.onerror = () => resolve(file);
+          }
+        } catch (e) {
+          // Fallback to true if getImageData fails
+          hasAlpha = true;
+        }
+
+        if (hasAlpha) {
+          outputType = 'image/png';
+          fileExtension = '.png';
+          console.log('[Image Compression] Image has transparent pixels, keeping format as PNG');
+        } else {
+          outputType = 'image/jpeg';
+          fileExtension = '.jpg';
+          console.log('[Image Compression] PNG has no transparency, converting to JPEG for better compression');
+        }
+      }
+
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            if (blob.size >= file.size) {
+              console.log(`[Image Compression] Compressed size (${(blob.size / 1024 / 1024).toFixed(2)} MB) is not smaller than original. Uploading original.`);
+              resolve(file);
+              return;
+            }
+
+            const baseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+            const name = `${baseName}${fileExtension}`;
+            const compressedFile = new File([blob], name, {
+              type: outputType,
+              lastModified: Date.now(),
+            });
+
+            console.log(`[Image Compression] Success! ${file.name} compressed from ${(file.size / 1024 / 1024).toFixed(2)} MB to ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB (${Math.round((1 - compressedFile.size / file.size) * 100)}% reduction)`);
+            resolve(compressedFile);
+          } else {
+            console.warn('[Image Compression] Canvas toBlob returned null, uploading original');
+            resolve(file);
+          }
+        },
+        outputType,
+        outputType === 'image/jpeg' ? quality : undefined
+      );
     };
-    reader.onerror = () => resolve(file);
+
+    img.onerror = (err) => {
+      console.error('[Image Compression] Image load error:', err);
+      URL.revokeObjectURL(objectUrl);
+      resolve(file);
+    };
   });
 };
 
