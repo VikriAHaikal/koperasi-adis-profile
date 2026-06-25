@@ -60,6 +60,9 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
   // Drag and drop state
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
+  // Tracks all files uploaded in the current editing session
+  const [sessionUploadedUrls, setSessionUploadedUrls] = useState<string[]>([]);
+
   const moveUnit = async (fromIndex: number, toIndex: number) => {
     if (fromIndex < 0 || fromIndex >= units.length || toIndex < 0 || toIndex >= units.length) return;
     
@@ -128,6 +131,22 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
     setDraggedIndex(null);
   };
 
+  const handleCancelOrClose = async () => {
+    // Delete all files uploaded in this session since the user canceled
+    for (const url of sessionUploadedUrls) {
+      try {
+        await dbService.deleteFile('images', url);
+      } catch (err) {
+        console.error('Error deleting temp upload:', err);
+      }
+    }
+    setSessionUploadedUrls([]);
+    setIsEditing(null);
+    setUnitForm({ name: '', description: '', icon: 'ShoppingBag', image_url: '' });
+    setLogoUrl('');
+    setLongDesc('');
+  };
+
   const handleEditUnit = (unit: BusinessUnit) => {
     setUnitForm({
       name: unit.name,
@@ -158,6 +177,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
         
         const publicUrl = await dbService.uploadFile('images', filePath, file);
         setUnitForm(prev => ({ ...prev, image_url: publicUrl }));
+        setSessionUploadedUrls(prev => [...prev, publicUrl]);
         showToast('Gambar cover unit usaha berhasil diunggah.', 'success');
       } catch (err: any) {
         console.error(err);
@@ -179,6 +199,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
         
         const publicUrl = await dbService.uploadFile('images', filePath, file);
         setLogoUrl(publicUrl);
+        setSessionUploadedUrls(prev => [...prev, publicUrl]);
         showToast('Logo unit usaha berhasil diunggah.', 'success');
       } catch (err: any) {
         console.error(err);
@@ -200,6 +221,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
         
         const publicUrl = await dbService.uploadFile('images', filePath, file);
         setBranchForm(prev => ({ ...prev, images: [...prev.images, publicUrl] }));
+        setSessionUploadedUrls(prev => [...prev, publicUrl]);
         showToast('Foto cabang berhasil ditambahkan.', 'success');
       } catch (err: any) {
         console.error(err);
@@ -343,6 +365,23 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
         await dbService.saveProfile(updatedProfile);
         setProfile(updatedProfile);
       }
+      
+      // Clean up discarded uploads from this session
+      const finalSavedUrls = [
+        unitForm.image_url,
+        logoUrl,
+        ...branches.flatMap(b => b.images || [])
+      ].filter(Boolean);
+      
+      const discardedUrls = sessionUploadedUrls.filter(url => !finalSavedUrls.includes(url));
+      for (const url of discardedUrls) {
+        try {
+          await dbService.deleteFile('images', url);
+        } catch (err) {
+          console.error('Error deleting discarded upload:', err);
+        }
+      }
+      setSessionUploadedUrls([]);
       
       setIsEditing(null);
       setUnitForm({ name: '', description: '', icon: 'ShoppingBag', image_url: '' });
@@ -585,7 +624,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
               </div>
               <button 
                 type="button" 
-                onClick={() => setIsEditing(null)} 
+                onClick={handleCancelOrClose} 
                 className="popup-modal-close"
                 title="Tutup"
                 style={{ width: '32px', height: '32px' }}
@@ -1283,7 +1322,7 @@ export const UnitsTab: React.FC<UnitsTabProps> = ({
               <div className="popup-modal-footer" style={{ borderTop: '1px solid #e2e8f0', paddingTop: '15px', marginTop: 'auto', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                 <button 
                   type="button" 
-                  onClick={() => setIsEditing(null)} 
+                  onClick={handleCancelOrClose} 
                   className="btn btn-secondary" 
                   style={{ padding: '8px 16px', fontSize: '0.82rem', borderRadius: '8px' }} 
                   disabled={isSaving || isUploading}

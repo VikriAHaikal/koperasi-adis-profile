@@ -598,7 +598,16 @@ export const dbService = {
             prof.partners.forEach(p => p.logo_url && list.push(p.logo_url));
           }
           if (prof.unit_details) {
-            prof.unit_details.forEach(d => d.logo_url && list.push(d.logo_url));
+            prof.unit_details.forEach(d => {
+              if (d.logo_url) list.push(d.logo_url);
+              if (d.branches) {
+                d.branches.forEach(b => {
+                  if (b.images) {
+                    b.images.forEach(img => list.push(img));
+                  }
+                });
+              }
+            });
           }
         };
 
