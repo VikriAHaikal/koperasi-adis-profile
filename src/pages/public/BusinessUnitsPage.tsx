@@ -87,16 +87,7 @@ export const BusinessUnitsPage: React.FC<BusinessUnitsPageProps> = ({ units }) =
                     {unit.description}
                   </p>
                   
-                  {unit.id === 'unit-2' && (
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
-                      <span style={{ fontSize: '0.82rem', fontWeight: 600, backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent)', padding: '6px 12px', borderRadius: '50px' }}>
-                        Jasa Flat 1%
-                      </span>
-                      <span style={{ fontSize: '0.82rem', fontWeight: 600, backgroundColor: 'rgba(15, 98, 254, 0.1)', color: 'var(--primary)', padding: '6px 12px', borderRadius: '50px' }}>
-                        Tanpa Riba / Syariah
-                      </span>
-                    </div>
-                  )}
+
 
                   <div style={{ marginTop: '15px' }}>
                     <Link 
