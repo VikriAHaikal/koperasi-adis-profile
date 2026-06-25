@@ -27,7 +27,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onGoToAdmin }) => {
     { label: 'Tentang Kami', path: '/tentang-kami' },
     { label: 'Unit Usaha', path: '/unit-usaha' },
     { label: 'Berita', path: '/berita' },
-    { label: 'Laporan RAT', path: '/laporan-rat' },
+    { label: 'Laporan & Dokumen', path: '/laporan-dokumen' },
     { label: 'Kontak', path: '/kontak' },
   ];
 
@@ -60,7 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onGoToAdmin }) => {
           />
           <div>
             <h1 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-dark)', letterSpacing: '-0.5px', margin: 0 }}>
-              KOPKAR ADIS
+              Koperasi Konsumen Karyawan
             </h1>
             <p style={{ fontSize: '0.65rem', color: 'var(--text-muted-dark)', fontWeight: 500, margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               PT Adis Dimension Footwear

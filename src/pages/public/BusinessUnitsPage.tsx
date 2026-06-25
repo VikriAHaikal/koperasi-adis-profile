@@ -31,7 +31,7 @@ export const BusinessUnitsPage: React.FC<BusinessUnitsPageProps> = ({ units }) =
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <h1 className="page-header-title">Unit Usaha Koperasi</h1>
           <p className="page-header-subtitle">
-            Layanan harian, logistik, dan program kesejahteraan finansial bagi seluruh anggota Kopkar Adis.
+            Layanan harian, logistik, dan program kesejahteraan finansial bagi seluruh anggota Koperasi Konsumen Karyawan PT Adis Dimension Footwear.
           </p>
         </div>
       </section>

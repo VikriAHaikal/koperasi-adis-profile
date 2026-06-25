@@ -39,9 +39,9 @@ export const DocumentsPage: React.FC<DocumentsPageProps> = ({ documents }) => {
         <div className="page-header-orb-1" />
         <div className="page-header-orb-2" />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          <h1 className="page-header-title">Laporan RAT & Dokumen</h1>
+          <h1 className="page-header-title">Laporan & Dokumen</h1>
           <p className="page-header-subtitle">
-            Transparansi keuangan dan dokumen regulasi AD-ART Koperasi PT Adis.
+            Dokumen regulasi AD-ART Koperasi Konsumen Karyawan PT Adis Dimension Footwear.
           </p>
         </div>
       </section>

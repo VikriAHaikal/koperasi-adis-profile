@@ -78,7 +78,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({ news }) => {
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <h1 className="page-header-title">Berita & Agenda Kegiatan</h1>
           <p className="page-header-subtitle">
-            Ikuti pengumuman resmi, laporan kegiatan, informasi promo Adis Mart, serta edukasi finansial terpercaya dari Kopkar Adis.
+            Ikuti pengumuman resmi, laporan kegiatan, informasi promo Adis Mart, serta edukasi finansial terpercaya dari Koperasi Konsumen Karyawan PT Adis Dimension Footwear.
           </p>
         </div>
       </section>
