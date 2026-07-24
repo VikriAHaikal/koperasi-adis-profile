@@ -1,73 +1,137 @@
-# React + TypeScript + Vite
+# 🏦 KOPKAR ADIS — Website Company Profile
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Website company profile resmi **Koperasi Karyawan ADIS (KOPKAR ADIS)** yang dibangun dengan stack modern. Dilengkapi fitur CMS (Content Management System) berbasis admin panel untuk pengelolaan konten secara dinamis tanpa perlu menyentuh kode.
 
-Currently, two official plugins are available:
+> 🚧 **Status**: Ongoing Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🚀 Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Kategori | Teknologi |
+|---|---|
+| **Framework** | [React 19](https://react.dev/) |
+| **Language** | TypeScript |
+| **Build Tool** | [Vite 8](https://vite.dev/) |
+| **Routing** | React Router DOM v7 |
+| **Backend / DB** | [Supabase](https://supabase.com/) (PostgreSQL + Auth + Storage) |
+| **Icons** | [Lucide React](https://lucide.dev/) |
+| **Styling** | Vanilla CSS (Custom Design System) |
+| **Deployment** | [Vercel](https://vercel.com/) |
+| **Linting** | ESLint + TypeScript ESLint |
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## ✨ Fitur Utama
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 🌐 Halaman Publik
+- **Beranda** — Hero slider dinamis, statistik, unit usaha, berita terkini
+- **Tentang Kami** — Sejarah koperasi, visi & misi, milestone, struktur organisasi, prestasi, mitra
+- **Unit Usaha** — Daftar unit usaha beserta detail halaman per unit (cabang, galeri, jam operasional)
+- **Berita** — Artikel berita koperasi dengan kategori
+- **Laporan RAT** — Dokumen resmi yang dapat diunduh
+- **Kontak** — Form pesan, informasi kontak, integrasi WhatsApp
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 🔐 Admin Panel
+- Login terproteksi dengan session management
+- Dashboard dengan ringkasan statistik
+- Manajemen konten: Hero, Profil, Unit Usaha, Berita, Dokumen, Kontak
+- Rich Text Editor untuk konten artikel
+- Manajemen pesan masuk dari pengunjung
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### ⚙️ Fitur Teknis
+- **Dual-mode DB**: Otomatis fallback ke LocalStorage (Mock Data) jika Supabase belum dikonfigurasi
+- **SEO-ready**: Meta tags dinamis per halaman, `robots.txt`, `sitemap.xml`, `manifest.json`
+- **PWA-ready**: Service Worker (`sw.js`) untuk offline support
+- **Cookie Consent** banner
+- **Floating WhatsApp** button dinamis dari data kontak
+- **Back to Top** button
+- **Responsive Design** untuk semua ukuran layar
+- Admin area diblokir dari crawler (`/admin`, `/login`)
+
+---
+
+## 🛠️ Cara Menjalankan Lokal
+
+### Prasyarat
+- Node.js >= 18
+- npm atau package manager lainnya
+
+### Instalasi
+
+```bash
+# 1. Clone repository
+git clone https://github.com/VikriAHaikal/koperasi-adis-profile.git
+cd koperasi-adis-profile
+
+# 2. Install dependencies
+npm install
+
+# 3. Salin file environment dan isi dengan kredensial Supabase
+cp .env.example .env
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Konfigurasi `.env`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
+
+> ℹ️ Jika `.env` tidak diisi, aplikasi akan otomatis berjalan dengan **Mock Data (LocalStorage)** — cocok untuk demo/preview tanpa backend.
+
+### Jalankan Development Server
+
+```bash
+npm run dev
+```
+
+### Setup Database Supabase (Opsional)
+
+Jalankan SQL berikut di Supabase SQL Editor secara berurutan:
+1. `supabase-schema.sql` — Membuat semua tabel dan data awal
+2. `supabase_security_policies.sql` — Mengatur Row Level Security (RLS)
+
+---
+
+## 📁 Struktur Proyek
+
+```
+koperasi-adis-profile/
+├── public/                  # Aset statis (logo, gambar, manifest, robots.txt, sitemap, sw.js)
+├── src/
+│   ├── assets/              # Aset internal (hero image, svg)
+│   ├── components/          # Komponen reusable (Navbar, Footer, Hero, dll.)
+│   │   └── admin/           # Komponen khusus admin (RichTextEditor)
+│   ├── pages/
+│   │   ├── public/          # Halaman publik (Home, About, BusinessUnits, dll.)
+│   │   └── admin/           # Halaman admin (Login, Dashboard, tabs)
+│   ├── services/
+│   │   └── db.ts            # Abstraksi layer database (Supabase + Mock fallback)
+│   ├── supabaseClient.ts    # Inisialisasi Supabase client
+│   ├── App.tsx              # Root component & routing
+│   ├── main.tsx             # Entry point
+│   └── index.css            # Global styles & design tokens
+├── supabase-schema.sql      # DDL schema database
+├── supabase_security_policies.sql  # RLS policies
+├── vercel.json              # Konfigurasi deployment Vercel (SPA rewrite)
+├── vite.config.ts           # Konfigurasi Vite
+└── .env.example             # Template environment variables
+```
+
+---
+
+## 🔒 Keamanan
+
+- ✅ File `.env` **tidak** di-commit ke repository (sudah ada di `.gitignore`)
+- ✅ Kredensial Supabase hanya dibaca dari environment variables
+- ✅ Admin panel menggunakan session-based auth
+- ✅ Halaman admin diproteksi dengan route guard (`PrivateRoute`)
+- ✅ RLS (Row Level Security) diterapkan di level database Supabase
+- ✅ Area admin diblokir dari indexing mesin pencari
+
+---
+
+## 📜 Lisensi
+
+Proyek ini dibuat untuk keperluan internal **Koperasi Karyawan ADIS**. All rights reserved.
