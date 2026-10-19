@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+# menghapus
 .env.example
 supabase-security_policies.sql
 supabase-schema.sql
